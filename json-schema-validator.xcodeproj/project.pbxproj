@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CB5B7B2E184F6F370012684D /* TFJSONSchemaValidatorObjectTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB5B7B2D184F6F370012684D /* TFJSONSchemaValidatorObjectTests.m */; };
+		CB5B7B30184F70E00012684D /* TFJSONSchemaValidatorAbstractTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB5B7B2F184F70E00012684D /* TFJSONSchemaValidatorAbstractTests.m */; };
+		CB5B7B33184F71EC0012684D /* TFJSONSchemaValidatorStringTests.json in Resources */ = {isa = PBXBuildFile; fileRef = CB5B7B32184F71EC0012684D /* TFJSONSchemaValidatorStringTests.json */; };
+		CB5B7B35184F740C0012684D /* TFJSONSchemaValidatorObjectTests.json in Resources */ = {isa = PBXBuildFile; fileRef = CB5B7B34184F740C0012684D /* TFJSONSchemaValidatorObjectTests.json */; };
 		CBC15EA2184F349D00638B84 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBC15EA1184F349D00638B84 /* Foundation.framework */; };
 		CBC15EA4184F349D00638B84 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBC15EA3184F349D00638B84 /* CoreGraphics.framework */; };
 		CBC15EA6184F349D00638B84 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBC15EA5184F349D00638B84 /* UIKit.framework */; };
@@ -35,6 +39,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CB5B7B2D184F6F370012684D /* TFJSONSchemaValidatorObjectTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorObjectTests.m; sourceTree = "<group>"; };
+		CB5B7B2F184F70E00012684D /* TFJSONSchemaValidatorAbstractTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorAbstractTests.m; sourceTree = "<group>"; };
+		CB5B7B31184F717F0012684D /* TFJSONSchemaValidatorAbstractTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TFJSONSchemaValidatorAbstractTests.h; sourceTree = "<group>"; };
+		CB5B7B32184F71EC0012684D /* TFJSONSchemaValidatorStringTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorStringTests.json; sourceTree = "<group>"; };
+		CB5B7B34184F740C0012684D /* TFJSONSchemaValidatorObjectTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorObjectTests.json; sourceTree = "<group>"; };
 		CBC15E9E184F349D00638B84 /* json-schema-validator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "json-schema-validator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBC15EA1184F349D00638B84 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		CBC15EA3184F349D00638B84 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -139,6 +148,11 @@
 				CBC15EC1184F349D00638B84 /* Supporting Files */,
 				CBC15ED8184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m */,
 				CBC15EDA184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m */,
+				CB5B7B32184F71EC0012684D /* TFJSONSchemaValidatorStringTests.json */,
+				CB5B7B2D184F6F370012684D /* TFJSONSchemaValidatorObjectTests.m */,
+				CB5B7B34184F740C0012684D /* TFJSONSchemaValidatorObjectTests.json */,
+				CB5B7B2F184F70E00012684D /* TFJSONSchemaValidatorAbstractTests.m */,
+				CB5B7B31184F717F0012684D /* TFJSONSchemaValidatorAbstractTests.h */,
 			);
 			path = "json-schema-validatorTests";
 			sourceTree = "<group>";
@@ -246,6 +260,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB5B7B35184F740C0012684D /* TFJSONSchemaValidatorObjectTests.json in Resources */,
+				CB5B7B33184F71EC0012684D /* TFJSONSchemaValidatorStringTests.json in Resources */,
 				CBC15EC5184F349D00638B84 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -269,6 +285,8 @@
 			files = (
 				CBC15ED9184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m in Sources */,
 				CBC15EDB184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m in Sources */,
+				CB5B7B30184F70E00012684D /* TFJSONSchemaValidatorAbstractTests.m in Sources */,
+				CB5B7B2E184F6F370012684D /* TFJSONSchemaValidatorObjectTests.m in Sources */,
 				CBC15ED4184F35AA00638B84 /* TFJSONSchemaValidator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -1,0 +1,10 @@
+{
+    "type": "object",
+    "properties": {
+        "testProp": {
+            "type" : "string",
+            "maxLength" : 10,
+            "minLength" : 3
+        }
+    }
+}
