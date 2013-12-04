@@ -18,7 +18,10 @@
 		CBC15EBC184F349D00638B84 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBC15EA1184F349D00638B84 /* Foundation.framework */; };
 		CBC15EBD184F349D00638B84 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBC15EA5184F349D00638B84 /* UIKit.framework */; };
 		CBC15EC5184F349D00638B84 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = CBC15EC3184F349D00638B84 /* InfoPlist.strings */; };
-		CBC15EC7184F349D00638B84 /* json_schema_validatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC15EC6184F349D00638B84 /* json_schema_validatorTests.m */; };
+		CBC15ED3184F35AA00638B84 /* TFJSONSchemaValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC15ED2184F35AA00638B84 /* TFJSONSchemaValidator.m */; };
+		CBC15ED4184F35AA00638B84 /* TFJSONSchemaValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC15ED2184F35AA00638B84 /* TFJSONSchemaValidator.m */; };
+		CBC15ED9184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC15ED8184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m */; };
+		CBC15EDB184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC15EDA184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,7 +50,10 @@
 		CBC15EBA184F349D00638B84 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		CBC15EC2184F349D00638B84 /* json-schema-validatorTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "json-schema-validatorTests-Info.plist"; sourceTree = "<group>"; };
 		CBC15EC4184F349D00638B84 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		CBC15EC6184F349D00638B84 /* json_schema_validatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = json_schema_validatorTests.m; sourceTree = "<group>"; };
+		CBC15ED1184F35AA00638B84 /* TFJSONSchemaValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TFJSONSchemaValidator.h; sourceTree = "<group>"; };
+		CBC15ED2184F35AA00638B84 /* TFJSONSchemaValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidator.m; sourceTree = "<group>"; };
+		CBC15ED8184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorCoreTests.m; sourceTree = "<group>"; };
+		CBC15EDA184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorStringTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +113,7 @@
 		CBC15EA7184F349D00638B84 /* json-schema-validator */ = {
 			isa = PBXGroup;
 			children = (
+				CBC15ED0184F357700638B84 /* Classes */,
 				CBC15EB0184F349D00638B84 /* TFAppDelegate.h */,
 				CBC15EB1184F349D00638B84 /* TFAppDelegate.m */,
 				CBC15EB3184F349D00638B84 /* Images.xcassets */,
@@ -129,8 +136,9 @@
 		CBC15EC0184F349D00638B84 /* json-schema-validatorTests */ = {
 			isa = PBXGroup;
 			children = (
-				CBC15EC6184F349D00638B84 /* json_schema_validatorTests.m */,
 				CBC15EC1184F349D00638B84 /* Supporting Files */,
+				CBC15ED8184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m */,
+				CBC15EDA184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m */,
 			);
 			path = "json-schema-validatorTests";
 			sourceTree = "<group>";
@@ -142,6 +150,15 @@
 				CBC15EC3184F349D00638B84 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		CBC15ED0184F357700638B84 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				CBC15ED1184F35AA00638B84 /* TFJSONSchemaValidator.h */,
+				CBC15ED2184F35AA00638B84 /* TFJSONSchemaValidator.m */,
+			);
+			path = Classes;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -240,6 +257,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CBC15ED3184F35AA00638B84 /* TFJSONSchemaValidator.m in Sources */,
 				CBC15EB2184F349D00638B84 /* TFAppDelegate.m in Sources */,
 				CBC15EAE184F349D00638B84 /* main.m in Sources */,
 			);
@@ -249,7 +267,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CBC15EC7184F349D00638B84 /* json_schema_validatorTests.m in Sources */,
+				CBC15ED9184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m in Sources */,
+				CBC15EDB184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m in Sources */,
+				CBC15ED4184F35AA00638B84 /* TFJSONSchemaValidator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -444,6 +464,7 @@
 				CBC15ECC184F349D00638B84 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CBC15ECD184F349D00638B84 /* Build configuration list for PBXNativeTarget "json-schema-validatorTests" */ = {
 			isa = XCConfigurationList;
@@ -452,6 +473,7 @@
 				CBC15ECF184F349D00638B84 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
