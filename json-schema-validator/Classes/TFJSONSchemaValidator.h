@@ -10,6 +10,8 @@
 
 @interface TFJSONSchemaValidator : NSObject
 + (TFJSONSchemaValidator *)validator;
+- (NSError *)validate:(NSDictionary *)jsonObject withSchemaPath:(NSString *)path;
+- (NSError *)validate:(NSDictionary *)jsonObject withSchemaPath:(NSString *)path bundle:(NSBundle *)bundle;
 - (NSError *)validate:(NSDictionary *)jsonObject withSchema:(NSDictionary *)schema;
 
 - (NSString *)prettyPrintErrors:(NSError *)errors;

@@ -23,6 +23,24 @@ static TFJSONSchemaValidator *validator;
     return validator;
 }
 
+- (NSError *)validate:(NSDictionary *)jsonObject withSchemaPath:(NSString *)path
+{
+    return [self validate:jsonObject withSchemaPath:path bundle:[NSBundle mainBundle]];
+}
+
+- (NSError *)validate:(NSDictionary *)jsonObject withSchemaPath:(NSString *)path bundle:(NSBundle *)bundle
+{
+    NSString *realPath = [bundle pathForResource:path ofType:@"json"];
+    NSError *error;
+    NSDictionary *schema = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:realPath] options: NSJSONReadingMutableContainers error: &error];
+    if(error){
+        return [self errorWithMessage:@""];
+    }
+    return [self validate:jsonObject withSchema:schema];
+}
+
+
+
 - (NSError *)validate:(NSDictionary *)jsonObject withSchema:(NSDictionary *)schema
 {
     if(!jsonObject) return [self errorWithMessage:@"Must supply a dictonary to validate"];
@@ -82,10 +100,10 @@ static TFJSONSchemaValidator *validator;
     NSArray *required = schema[@"required"];
     NSSet *requiredSet = [NSSet setWithArray:required];
     NSSet *valuesSet = [NSSet setWithArray:obj.allKeys];
-    if(required && ![requiredSet isEqualToSet:valuesSet]){
-        NSMutableSet *missingSet = [requiredSet mutableCopy];
-        [missingSet minusSet:valuesSet];
-        
+    NSMutableSet *missingSet = [requiredSet mutableCopy];
+    [missingSet minusSet:valuesSet];
+    
+    if(required && missingSet.count > 0){
         [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ is missing properties %@ which are required", path, missingSet]]];
     }
     
@@ -108,12 +126,12 @@ static TFJSONSchemaValidator *validator;
         }
     } else if([items isKindOfClass:NSArray.class]) {
         NSArray *itemsArray = (NSArray *)items;
-        for(NSInteger i = 0; i < itemsArray.count; i++){
+        for(NSInteger i = 0; i < itemsArray.count && i < arr.count; i++){
             [errors addObjectsFromArray:[self validate:arr[i] atPath:[NSString stringWithFormat:@"%@[%i]", path, i] withSchema:itemsArray[i]]];
         }
         
         NSNumber *additionalItems = schema[@"additionalItems"];
-        if(additionalItems && ![additionalItems boolValue] && itemsArray.count != arr.count){
+        if(additionalItems && ![additionalItems boolValue] && arr.count > itemsArray.count){
             NSError *error = [self errorWithMessage:[NSString stringWithFormat:@"%@ should not have additional entries have %i, should have %i", path, arr.count, itemsArray.count]];
             [errors addObject:error];
         }
