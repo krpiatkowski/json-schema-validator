@@ -14,11 +14,14 @@
 - (void)setUp
 {
     [super setUp];
-    NSError *error;
     
     NSString *path = [[NSBundle bundleForClass:[self class]] pathForResource:[self schemaName] ofType:@"json"];
     
+    NSError *error;
     _schema = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:path] options: NSJSONReadingMutableContainers error: &error];
+    if(error){
+        NSLog(@"%@", error.userInfo);
+    }
 }
 
 - (void)tearDown

@@ -44,13 +44,69 @@ static TFJSONSchemaValidator *validator;
     
     if([type isEqualToString:@"object"]){
         [errors addObjectsFromArray:[self validateObject:value atPath:path withSchema:schema]];
+    } else if([type isEqualToString:@"array"]){
+        [errors addObjectsFromArray:[self validateArray:value atPath:path withSchema:schema]];
     } else if([type isEqualToString:@"string"]){
         NSError *error = [self validateString:value atPath:path withSchema:schema];
         if(error){
             [errors addObject:error];
         }
+    } else if([type isEqualToString:@"number"]){
+        NSError *error = [self validateNumber:value atPath:path withSchema:schema];
+        if(error){
+            [errors addObject:error];
+        }
     } else {
         [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ is of unsupported type at %@", type, path]]];
+    }
+    return errors;
+}
+
+- (NSArray *)validateObject:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema
+{
+    if(![value isKindOfClass:NSDictionary.class]){
+        return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ is not a object", path]]];
+    }
+    
+    NSDictionary *obj = (NSDictionary *)value;
+    
+    NSMutableArray *errors = [NSMutableArray new];
+    NSDictionary *properties = schema[@"properties"];
+    for(NSString *property in properties){
+        NSString *newPath = [path isEqualToString:@""] ? property : [NSString stringWithFormat:@"%@%@%@", path, kJSONSchemaValidationPathDelimiter, property];
+        if(obj[property] && properties[property]){
+            [errors addObjectsFromArray:[self validate:obj[property] atPath:newPath withSchema:properties[property]]];
+        }
+    }
+    
+    return errors;
+}
+
+- (NSArray *)validateArray:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema
+{
+    if(![value isKindOfClass:NSArray.class]){
+        return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ is not a array", path]]];
+    }
+    NSArray *arr = (NSArray *)value;
+    
+    NSMutableArray *errors = [NSMutableArray new];
+    NSObject *items = schema[@"items"];
+    
+    if([items isKindOfClass:NSDictionary.class]){
+        for(NSInteger i = 0; i < arr.count; i++){
+            [errors addObjectsFromArray:[self validate:arr[i] atPath:[NSString stringWithFormat:@"%@[%i]", path, i] withSchema:(NSDictionary *)items]];
+        }
+    } else if([items isKindOfClass:NSArray.class]) {
+        NSArray *itemsArray = (NSArray *)items;
+        for(NSInteger i = 0; i < itemsArray.count; i++){
+            [errors addObjectsFromArray:[self validate:arr[i] atPath:[NSString stringWithFormat:@"%@[%i]", path, i] withSchema:itemsArray[i]]];
+        }
+        
+        NSNumber *additionalItems = schema[@"additionalItems"];
+        if(additionalItems && ![additionalItems boolValue] && itemsArray.count != arr.count){
+            NSError *error = [self errorWithMessage:[NSString stringWithFormat:@"%@ should not have additional entries have %i, should have %i", path, arr.count, itemsArray.count]];
+            [errors addObject:error];
+        }
     }
     return errors;
 }
@@ -74,24 +130,23 @@ static TFJSONSchemaValidator *validator;
     return nil;
 }
 
-- (NSArray *)validateObject:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema
+- (NSError *)validateNumber:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema
 {
-    if(![value isKindOfClass:NSDictionary.class]){
-        return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ is not a object", path]]];
+    if(![value isKindOfClass:NSNumber.class]){
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a number", path]];
     }
-    
-    NSDictionary *obj = (NSDictionary *)value;
+    NSNumber *number = (NSNumber *)value;
+    NSNumber *maximum = schema[@"maximum"];
+    if(maximum && [number compare:maximum] == NSOrderedDescending){
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is is greater then %@", path, [maximum stringValue]]];
+    }
 
-    NSMutableArray *errors = [NSMutableArray new];
-    NSDictionary *properties = schema[@"properties"];
-    for(NSString *property in properties){
-        NSString *newPath = [path isEqualToString:@""] ? property : [NSString stringWithFormat:@"%@%@%@", path, kJSONSchemaValidationPathDelimiter, property];
-        if(obj[property] && properties[property]){
-            [errors addObjectsFromArray:[self validate:obj[property] atPath:newPath withSchema:properties[property]]];
-        }
+    NSNumber *minimum = schema[@"minimum"];
+    if(minimum && [number compare:minimum] == NSOrderedAscending){
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is is less then %@", path, [maximum stringValue]]];
     }
-    
-    return errors;
+
+    return nil;
 }
 
 - (NSError *)errorWithMessage:(NSString *)message

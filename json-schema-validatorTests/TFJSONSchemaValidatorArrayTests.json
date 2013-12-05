@@ -1,0 +1,28 @@
+{
+    "type": "object",
+    "properties": {
+        "testArray": {
+            "type" : "array"
+        },
+        "testSame": {
+            "type" : "array",
+            "items" : {"type" : "string"},
+            "additionalItems" : false
+        },
+        "testMixed": {
+            "type" : "array",
+            "items" : [
+                       {"type" : "string"},
+                       {"type" : "number"}
+                       ]
+        },
+        "testMixedNoAdditional": {
+            "type" : "array",
+            "items" : [
+                       {"type" : "string"},
+                       {"type" : "number"}
+                       ],
+            "additionalItems" : false
+        }
+    }
+}

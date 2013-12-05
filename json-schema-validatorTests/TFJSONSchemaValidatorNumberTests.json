@@ -1,0 +1,15 @@
+{
+    "type": "object",
+    "properties": {
+        "testProp": {
+            "type" : "number",
+            "maximum" : 999,
+            "minimum" : 100
+        },
+        "testPropNegative": {
+            "type" : "number",
+            "maximum" : -100,
+            "minimum" : -999
+        }
+    }
+}

@@ -24,6 +24,6 @@
 {
     NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"level1" : @{@"level2" : @{@"level3" : @{}}}} withSchema:self.schema];
     NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"input is valid according to schema");
+    XCTAssertNil(error, @"Nesting should be supported");
 }
 @end
