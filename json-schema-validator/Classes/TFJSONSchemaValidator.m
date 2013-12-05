@@ -79,6 +79,16 @@ static TFJSONSchemaValidator *validator;
         }
     }
     
+    NSArray *required = schema[@"required"];
+    NSSet *requiredSet = [NSSet setWithArray:required];
+    NSSet *valuesSet = [NSSet setWithArray:obj.allKeys];
+    if(required && ![requiredSet isEqualToSet:valuesSet]){
+        NSMutableSet *missingSet = [requiredSet mutableCopy];
+        [missingSet minusSet:valuesSet];
+        
+        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ is missing properties %@ which are required", path, missingSet]]];
+    }
+    
     return errors;
 }
 

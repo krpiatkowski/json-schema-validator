@@ -26,4 +26,25 @@
     NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
     XCTAssertNil(error, @"Nesting should be supported");
 }
+
+- (void)testNotMissing
+{
+    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"missing" : @{@"prop1" : @"prop1", @"prop2" : @"prop2", @"prop3" : @"prop3"}} withSchema:self.schema];
+    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
+    XCTAssertNil(error, @"Should not miss anything");
+}
+
+- (void)testMissingAll
+{
+    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"missing" : @{}} withSchema:self.schema];
+    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
+    XCTAssertNotNil(error, @"Should miss all");
+}
+
+- (void)testMissingSome
+{
+    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"missing" : @{@"prop1" : @"prop1"}} withSchema:self.schema];
+    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
+    XCTAssertNotNil(error, @"Should miss some");
+}
 @end

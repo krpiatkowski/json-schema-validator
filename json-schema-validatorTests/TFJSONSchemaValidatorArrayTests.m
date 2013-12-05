@@ -68,4 +68,11 @@
     NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
     XCTAssertNotNil(error, @"There is a additional items");
 }
+
+- (void)testNestedArrays
+{
+    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testNestedArrays" : @[@[@"test"]]} withSchema:self.schema];
+    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
+    XCTAssertNil(error, @"Nested arrays should be supported");
+}
 @end

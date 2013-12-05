@@ -23,6 +23,13 @@
                        {"type" : "number"}
                        ],
             "additionalItems" : false
-        }
+        },
+        "testNestedArrays" :{
+            "type" : "array",
+            "items" : {
+                "type" : "array",
+                "items" : {"type" : "string"}
+            }
+        }        
     }
 }
