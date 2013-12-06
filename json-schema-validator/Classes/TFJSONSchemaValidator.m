@@ -90,7 +90,12 @@ static TFJSONSchemaValidator *validator;
     NSString *ref = schema[@"$ref"];
     if(ref){
         //This is not complete, as resolution is more complex
-        NSString *entry = [ref stringByReplacingOccurrencesOfString:@"#/definitions/" withString:@""];
+        NSString *entry;
+        if([ref hasPrefix:@"#/definitions/"]){
+            entry = [ref stringByReplacingOccurrencesOfString:@"#/definitions/" withString:@""];
+        } else if([ref hasPrefix:@"#"]){
+            entry = @"#";
+        }
         return [self validate:value atPath:path schema:definitions[entry] definitions:definitions];
     }
     return @[];
