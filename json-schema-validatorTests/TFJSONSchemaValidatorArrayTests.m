@@ -7,75 +7,70 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "TFJSONSchemaValidatorAbstractTests.h"
 #import "TFJSONSchemaValidator.h"
 
-@interface TFJSONSchemaValidatorArrayTests : XCTestCase
+@interface TFJSONSchemaValidatorArrayTests : TFJSONSchemaValidatorAbstractTests
 
 @end
-static NSString *kSchemaName = @"TFJSONSchemaValidatorArrayTests";
 
 @implementation TFJSONSchemaValidatorArrayTests
+- (NSString *)schema
+{
+    return @"TFJSONSchemaValidatorArrayTests";
+}
 
 - (void)testArray
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testSame" : @[]} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"A simple array without any elements is still of the type string");
+    BOOL status = [self assertOk:@{@"testSame" : @[]}];
+    XCTAssert(status);
 }
 
 - (void)testArraySame
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testSame" : @[@"test1", @"test2"]} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"The array only contain strings");
+    BOOL status = [self assertOk:@{@"testSame" : @[@"test1", @"test2"]}];
+    XCTAssert(status);
 }
 
 - (void)testArraySameMixedFail
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testSame" : @[@"test1", @(1)]} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"Mixing arrays is not allowed for testSame");
+    BOOL status = [self assertFail:@{@"testSame" : @[@"test1", @(1)]}];
+    XCTAssert(status);
 }
 
 - (void)testArrayMixed
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testMixed" : @[@"test1", @(1)]} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"Mixing arrays should be allowed");
+    BOOL status = [self assertOk:@{@"testMixed" : @[@"test1", @(1)]}];
+    XCTAssert(status);
 }
 
 - (void)testArrayMixedFail
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testMixed" : @[@"test1", @"test2"]} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"Second parameter is not a number");
+    BOOL status = [self assertFail:@{@"testMixed" : @[@"test1", @"test2"]}];
+    XCTAssert(status);
 }
 
 - (void)testArrayMixedNoAdditional
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testMixed" : @[@"test1", @(1)]} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"There is no additional items");
+    BOOL status = [self assertOk:@{@"testMixed" : @[@"test1", @(1)]}];
+    XCTAssert(status);
 }
 
 - (void)testArrayMixedNoAdditionalFail
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testMixedNoAdditional" : @[@"test1", @(1), @(1)]} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"There is a additional items");
+    BOOL status = [self assertFail:@{@"testMixedNoAdditional" : @[@"test1", @(1), @(1)]}];
+    XCTAssert(status);
 }
 
 - (void)testArrayMixedNoAdditionalFewerItems
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testMixedNoAdditional" : @[@"test1"]} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"Fewer items are allowed");
+    BOOL status = [self assertOk:@{@"testMixedNoAdditional" : @[@"test1"]}];
+    XCTAssert(status);
 }
 
 - (void)testNestedArrays
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testNestedArrays" : @[@[@"test"]]} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"Nested arrays should be supported");
+    BOOL status = [self assertOk:@{@"testNestedArrays" : @[@[@"test"]]}];
+    XCTAssert(status);
 }
 @end

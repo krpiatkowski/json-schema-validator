@@ -7,55 +7,53 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "TFJSONSchemaValidatorAbstractTests.h"
 #import "TFJSONSchemaValidator.h"
 
-@interface TFJSONSchemaValidatorStringTests : XCTestCase
+@interface TFJSONSchemaValidatorStringTests : TFJSONSchemaValidatorAbstractTests
 
 @end
 
-
-static NSString *kSchemaName = @"TFJSONSchemaValidatorStringTests";
 @implementation TFJSONSchemaValidatorStringTests
+- (NSString *)schema
+{
+    return @"TFJSONSchemaValidatorStringTests";
+}
 
 - (void)testStringValidation
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testProp" : @"test"} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"input is valid according to schema");
+    BOOL status = [self assertOk:@{@"testProp" : @"test"}];
+    XCTAssert(status);
 }
 
 - (void)testStringValidationFailed
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testProp" : @(1)} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"input is invalid according to schema");
+    BOOL status = [self assertFail:@{@"testProp" : @(1)}];
+    XCTAssert(status);
 }
 
 - (void)testStringMaxLengthFailed
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testProp" : @"012345678910"} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"String should be to long");
+
+    BOOL status = [self assertFail:@{@"testProp" : @"012345678910"}];
+    XCTAssert(status);
 }
 
 - (void)testStringMinLengthFailed
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testProp" : @"01"} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"String should be to short");
+    BOOL status = [self assertFail:@{@"testProp" : @"01"}];
+    XCTAssert(status);
 }
 
 - (void)testStringPattern
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testRegExp" : @"01abcd"} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"Follows pattern");
+    BOOL status = [self assertOk:@{@"testRegExp" : @"01abcd"}];
+    XCTAssert(status);
 }
 
 - (void)testStringPatternFail
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testRegExp" : @"012acd"} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"Does not follows pattern");
+    BOOL status = [self assertFail:@{@"testRegExp" : @"012acd"}];
+    XCTAssert(status);
 }
 @end

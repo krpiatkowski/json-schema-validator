@@ -29,6 +29,7 @@
 		CBC15EDB184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC15EDA184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m */; };
 		CBCB191D1851D6EB00F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBCB191C1851D6EB00F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.m */; };
 		CBCB191F1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.json in Resources */ = {isa = PBXBuildFile; fileRef = CBCB191E1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.json */; };
+		CBCB19211851EDD400F6BB6D /* TFJSONSchemaValidatorAbstractTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBCB19201851EDD400F6BB6D /* TFJSONSchemaValidatorAbstractTests.m */; };
 		CBFAB3B2185061CD00E5AD12 /* TFJSONSchemaValidatorArrayTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBFAB3B1185061CD00E5AD12 /* TFJSONSchemaValidatorArrayTests.m */; };
 		CBFAB3B41850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.json in Resources */ = {isa = PBXBuildFile; fileRef = CBFAB3B31850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.json */; };
 /* End PBXBuildFile section */
@@ -70,6 +71,8 @@
 		CBC15EDA184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorStringTests.m; sourceTree = "<group>"; };
 		CBCB191C1851D6EB00F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorDefinitionsTests.m; sourceTree = "<group>"; };
 		CBCB191E1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorDefinitionsTests.json; sourceTree = "<group>"; };
+		CBCB19201851EDD400F6BB6D /* TFJSONSchemaValidatorAbstractTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorAbstractTests.m; sourceTree = "<group>"; };
+		CBCB19221851EF4000F6BB6D /* TFJSONSchemaValidatorAbstractTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TFJSONSchemaValidatorAbstractTests.h; sourceTree = "<group>"; };
 		CBFAB3B1185061CD00E5AD12 /* TFJSONSchemaValidatorArrayTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorArrayTests.m; sourceTree = "<group>"; };
 		CBFAB3B31850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorArrayTests.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -166,6 +169,8 @@
 				CBFAB3B31850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.json */,
 				CBCB191C1851D6EB00F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.m */,
 				CBCB191E1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.json */,
+				CBCB19221851EF4000F6BB6D /* TFJSONSchemaValidatorAbstractTests.h */,
+				CBCB19201851EDD400F6BB6D /* TFJSONSchemaValidatorAbstractTests.m */,
 			);
 			path = "json-schema-validatorTests";
 			sourceTree = "<group>";
@@ -300,6 +305,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CB5B7B37184F7A590012684D /* TFJSONSchemaValidatorNumberTests.m in Sources */,
+				CBCB19211851EDD400F6BB6D /* TFJSONSchemaValidatorAbstractTests.m in Sources */,
 				CBC15ED9184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m in Sources */,
 				CBC15EDB184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m in Sources */,
 				CBCB191D1851D6EB00F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.m in Sources */,

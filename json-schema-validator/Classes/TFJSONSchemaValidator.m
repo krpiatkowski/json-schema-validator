@@ -223,7 +223,7 @@ static TFJSONSchemaValidator *validator;
     NSString *str = errors.userInfo[@"message"];
     
     for(NSError *error in errors.userInfo[@"errors"]){
-        str = [NSString stringWithFormat:@"%@\nERROR:%@", str, error.userInfo[@"message"]];
+        str = [NSString stringWithFormat:@"%@\n%@", str, error.userInfo[@"message"]];
     }
     
     return str;

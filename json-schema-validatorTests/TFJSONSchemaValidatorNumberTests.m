@@ -7,54 +7,52 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "TFJSONSchemaValidatorAbstractTests.h"
 #import "TFJSONSchemaValidator.h"
 
-@interface TFJSONSchemaValidatorNumberTests : XCTestCase
+@interface TFJSONSchemaValidatorNumberTests : TFJSONSchemaValidatorAbstractTests
 
 @end
-static NSString *kSchemaName = @"TFJSONSchemaValidatorNumberTests";
 
 @implementation TFJSONSchemaValidatorNumberTests
+- (NSString *)schema
+{
+    return @"TFJSONSchemaValidatorNumberTests";
+}
 
 - (void)testNumberValidation
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testProp" : @(200)} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"200 is a valid number");
+    BOOL status = [self assertOk:@{@"testProp" : @(200)}];
+    XCTAssert(status);
 }
 
 - (void)testNumberMaximumFailed
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testProp" : @(9999)} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"9999 should be larger then 999");
+    BOOL status = [self assertFail:@{@"testProp" : @(9999)}];
+    XCTAssert(status);
 }
 
 - (void)testNumberMinimumFailed
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testProp" : @(0)} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"0 is smaller then 100");
+    BOOL status = [self assertFail:@{@"testProp" : @(0)}];
+    XCTAssert(status);
 }
 
 - (void)testNumberMaximumFloatFailed
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testProp" : @(9999.9)} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"9999.9 is larger then 999");
+    BOOL status = [self assertFail:@{@"testProp" : @(9999.9)}];
+    XCTAssert(status);
 }
 
 - (void)testNumberMinimumFloatFailed
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testProp" : @(9.9)} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"9.9 is smaller then 100");
+    BOOL status = [self assertFail:@{@"testProp" : @(9.9)}];
+    XCTAssert(status);
 }
 
 - (void)testNumberNegative
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testPropNegative" : @(-199)} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"-199 is smaller then -100 and larger then -999");
+    BOOL status = [self assertOk:@{@"testPropNegative" : @(-199)}];
+    XCTAssert(status);
 }
 @end

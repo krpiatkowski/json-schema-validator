@@ -5,30 +5,29 @@
 //  Created by Krzysztof Piatkowski on 06/12/13.
 //  Copyright (c) 2013 Trifork. All rights reserved.
 //
-
 #import <XCTest/XCTest.h>
+#import "TFJSONSchemaValidatorAbstractTests.h"
 #import "TFJSONSchemaValidator.h"
 
-@interface TFJSONSchemaValidatorDefinitionsTests : XCTestCase
+@interface TFJSONSchemaValidatorDefinitionsTests : TFJSONSchemaValidatorAbstractTests
 
 @end
 
-static NSString *kSchemaName = @"TFJSONSchemaValidatorDefinitionsTests";
-
 @implementation TFJSONSchemaValidatorDefinitionsTests
+- (NSString *)schema
+{
+    return @"TFJSONSchemaValidatorDefinitionsTests";
+}
 
 - (void)testLoadedDefinitions
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testDefinitions" : @"#AABBCC"} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"string should be a color and validated");
+    BOOL status = [self assertOk:@{@"testDefinitions" : @"#AABBCC"}];
+    XCTAssert(status);
 }
 
 - (void)testLoadedDefinitionsFailed
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testDefinitions" : @"AABBCC"} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"string should be a color and validated");
+    BOOL status = [self assertFail:@{@"testDefinitions" : @"AABBCC"}];
+    XCTAssert(status);
 }
-
 @end

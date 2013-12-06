@@ -7,40 +7,38 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "TFJSONSchemaValidatorAbstractTests.h"
 #import "TFJSONSchemaValidator.h"
 
-@interface TFJSONSchemaValidatorObjectTests : XCTestCase
+@interface TFJSONSchemaValidatorObjectTests : TFJSONSchemaValidatorAbstractTests
 @end
 
-static NSString *kSchemaName = @"TFJSONSchemaValidatorObjectTests";
-
 @implementation TFJSONSchemaValidatorObjectTests
-
+- (NSString *)schema
+{
+    return @"TFJSONSchemaValidatorObjectTests";
+}
 - (void)testNestedObjects
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"level1" : @{@"level2" : @{@"level3" : @{}}}} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"Nesting should be supported");
+    BOOL status = [self assertOk:@{@"level1" : @{@"level2" : @{@"level3" : @{}}}}];
+    XCTAssert(status);
 }
 
 - (void)testNotMissing
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"missing" : @{@"prop1" : @"prop1", @"prop2" : @"prop2", @"prop3" : @"prop3"}} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"Should not miss anything");
+    BOOL status = [self assertOk:@{@"missing" : @{@"prop1" : @"prop1", @"prop2" : @"prop2", @"prop3" : @"prop3"}}];
+    XCTAssert(status);
 }
 
 - (void)testMissingAll
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"missing" : @{}} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"Should miss all");
+    BOOL status = [self assertFail:@{@"missing" : @{}}];
+    XCTAssert(status);
 }
 
 - (void)testMissingSome
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"missing" : @{@"prop1" : @"prop1"}} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNotNil(error, @"Should miss some");
+    BOOL status = [self assertFail:@{@"missing" : @{@"prop1" : @"prop1"}}];
+    XCTAssert(status);
 }
 @end
