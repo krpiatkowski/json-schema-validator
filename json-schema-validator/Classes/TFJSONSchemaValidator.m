@@ -230,13 +230,14 @@ static TFJSONSchemaValidator *validator;
     if(!errors){
         return @"";
     }
-    
-    NSString *str = errors.userInfo[@"message"];
-    
-    for(NSError *error in errors.userInfo[@"errors"]){
-        str = [NSString stringWithFormat:@"%@\n%@", str, error.userInfo[@"message"]];
+    NSString *str = @"";
+    if(!errors.userInfo[@"errors"]){
+        str = errors.userInfo[@"message"];
+    } else {
+        for(NSError *error in errors.userInfo[@"errors"]){
+            str = [NSString stringWithFormat:@"%@%@\n", str, error.userInfo[@"message"]];
+        }
     }
-    
     return str;
 }
 @end
