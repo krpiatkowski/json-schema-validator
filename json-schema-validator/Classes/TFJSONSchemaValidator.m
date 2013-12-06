@@ -154,6 +154,17 @@ static TFJSONSchemaValidator *validator;
     if(minLength && str.length < [minLength integerValue]){
         return [self errorWithMessage:[NSString stringWithFormat:@"%@ has a length < %d", path, [minLength integerValue]]];
     }
+    
+    NSString *pattern = schema[@"pattern"];
+    if(pattern){
+        NSError *error;
+        NSRegularExpression *reg = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
+        
+        NSUInteger matches =[reg numberOfMatchesInString:str options:0 range:NSMakeRange(0, str.length)];
+        if(!matches){
+            return [self errorWithMessage:[NSString stringWithFormat:@"%@ does not match %@", path, pattern]];
+        }
+    }
 
     return nil;
 }

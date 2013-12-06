@@ -66,6 +66,13 @@ static NSString *kSchemaName = @"TFJSONSchemaValidatorArrayTests";
     XCTAssertNotNil(error, @"There is a additional items");
 }
 
+- (void)testArrayMixedNoAdditionalFewerItems
+{
+    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testMixedNoAdditional" : @[@"test1"]} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
+    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
+    XCTAssertNil(error, @"Fewer items are allowed");
+}
+
 - (void)testNestedArrays
 {
     NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testNestedArrays" : @[@[@"test"]]} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];

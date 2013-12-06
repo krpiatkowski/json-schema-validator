@@ -45,4 +45,18 @@ static NSString *kSchemaName = @"TFJSONSchemaValidatorStringTests";
     NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
     XCTAssertNotNil(error, @"String should be to short");
 }
+
+- (void)testStringPattern
+{
+    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testRegExp" : @"01abcd"} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
+    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
+    XCTAssertNil(error, @"Follows pattern");
+}
+
+- (void)testStringPatternFail
+{
+    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"testRegExp" : @"012acd"} withSchemaPath:kSchemaName bundle:[NSBundle bundleForClass:[self class]]];
+    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
+    XCTAssertNotNil(error, @"Does not follows pattern");
+}
 @end

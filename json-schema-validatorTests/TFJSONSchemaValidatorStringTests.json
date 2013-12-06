@@ -5,6 +5,10 @@
             "type" : "string",
             "maxLength" : 10,
             "minLength" : 3
+        },
+        "testRegExp": {
+            "type" : "string",
+            "pattern" : "\\d{2}[a-zA-Z]{4}"
         }
     }
 }
