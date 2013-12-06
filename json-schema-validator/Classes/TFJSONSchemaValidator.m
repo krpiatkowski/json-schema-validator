@@ -157,6 +157,17 @@ static TFJSONSchemaValidator *validator;
             [errors addObject:error];
         }
     }
+    
+    NSNumber *minItems = schema[@"minItems"];
+    if(minItems && arr.count < [minItems integerValue]){
+        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ must a minimum of %i items, it has %i", path, [minItems integerValue], arr.count]]];
+    }
+
+    NSNumber *maxItems = schema[@"maxItems"];
+    if(maxItems && arr.count > [maxItems integerValue] ){
+        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ must a maximum of %i items, it has %i", path, [maxItems integerValue], arr.count]]];
+    }
+
     return errors;
 }
 

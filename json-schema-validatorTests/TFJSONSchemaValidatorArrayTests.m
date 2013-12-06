@@ -73,4 +73,29 @@
     BOOL status = [self assertOk:@{@"testNestedArrays" : @[@[@"test"]]}];
     XCTAssert(status);
 }
+
+- (void)testMinItems
+{
+    BOOL status = [self assertOk:@{@"testRange" : @[@"1"]}];
+    XCTAssert(status);
+}
+
+- (void)testMinItemsFailed
+{
+    BOOL status = [self assertFail:@{@"testRange" : @[]}];
+    XCTAssert(status);
+}
+
+- (void)testMaxItems
+{
+    BOOL status = [self assertOk:@{@"testRange" : @[@"1", @"2"]}];
+    XCTAssert(status);
+}
+
+- (void)testMaxItemsFailed
+{
+    BOOL status = [self assertFail:@{@"testRange" : @[@"1",@"2",@"3",@"4"]}];
+    XCTAssert(status);
+}
+
 @end
