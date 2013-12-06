@@ -7,7 +7,6 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "TFJSONSchemaValidatorAbstractTests.h"
 #import "TFJSONSchemaValidator.h"
 
 @interface TFJSONSchemaValidatorStringTests : XCTestCase

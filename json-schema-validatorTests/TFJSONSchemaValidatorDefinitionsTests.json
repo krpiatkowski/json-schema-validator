@@ -1,0 +1,9 @@
+{
+    "type": "object",
+    "properties" : {
+        "testDefinitions" : { "$ref": "#/definitions/hexColor" }
+    },
+    "definitions": {
+        "hexColor" : {"type" : "string", "pattern" : "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"}
+    }
+}

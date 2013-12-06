@@ -46,7 +46,13 @@ static TFJSONSchemaValidator *validator;
     if(!jsonObject) return [self errorWithMessage:@"Must supply a dictonary to validate"];
     if(!schema) return [self errorWithMessage:@"Must supply a schema"];
 
-    NSArray *errors = [self validate:jsonObject atPath:@"" withSchema:schema];
+    NSMutableDictionary *definitions = [schema[@"definitions"] mutableCopy];
+    if(!definitions){
+        definitions = [NSMutableDictionary new];
+    }
+    definitions[@"#"] = schema;
+    
+    NSArray *errors = [self validate:jsonObject atPath:@"" schema:schema definitions:definitions];
     
     if(errors.count > 0){
         return [NSError errorWithDomain:kJSONSchemaValidationDomain code:1 userInfo:@{@"message" : @"Validation failed", @"errors" : errors}];
@@ -55,32 +61,42 @@ static TFJSONSchemaValidator *validator;
 }
 
 
-- (NSArray *)validate:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema;
+- (NSArray *)validate:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSDictionary *)definitions
 {
-    NSMutableArray *errors = [NSMutableArray array];
-    NSString *type = schema[@"type"];
     
-    if([type isEqualToString:@"object"]){
-        [errors addObjectsFromArray:[self validateObject:value atPath:path withSchema:schema]];
-    } else if([type isEqualToString:@"array"]){
-        [errors addObjectsFromArray:[self validateArray:value atPath:path withSchema:schema]];
-    } else if([type isEqualToString:@"string"]){
-        NSError *error = [self validateString:value atPath:path withSchema:schema];
-        if(error){
-            [errors addObject:error];
+    NSString *type = schema[@"type"];
+    if(type){
+        NSMutableArray *errors = [NSMutableArray array];
+        if([type isEqualToString:@"object"]){
+            [errors addObjectsFromArray:[self validateObject:value atPath:path schema:schema definitions:definitions]];
+        } else if([type isEqualToString:@"array"]){
+            [errors addObjectsFromArray:[self validateArray:value atPath:path withSchema:schema definitions:definitions]];
+        } else if([type isEqualToString:@"string"]){
+            NSError *error = [self validateString:value atPath:path withSchema:schema];
+            if(error){
+                [errors addObject:error];
+            }
+        } else if([type isEqualToString:@"number"]){
+            NSError *error = [self validateNumber:value atPath:path withSchema:schema];
+            if(error){
+                [errors addObject:error];
+            }
+        } else {
+            [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ is of unsupported type at %@", type, path]]];
         }
-    } else if([type isEqualToString:@"number"]){
-        NSError *error = [self validateNumber:value atPath:path withSchema:schema];
-        if(error){
-            [errors addObject:error];
-        }
-    } else {
-        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ is of unsupported type at %@", type, path]]];
+        return errors;
     }
-    return errors;
+    
+    NSString *ref = schema[@"$ref"];
+    if(ref){
+        //This is not complete, as resolution is more complex
+        NSString *entry = [ref stringByReplacingOccurrencesOfString:@"#/definitions/" withString:@""];
+        return [self validate:value atPath:path schema:definitions[entry] definitions:definitions];
+    }
+    return @[];
 }
 
-- (NSArray *)validateObject:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema
+- (NSArray *)validateObject:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSDictionary *)definitions
 {
     if(![value isKindOfClass:NSDictionary.class]){
         return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ is not a object", path]]];
@@ -93,7 +109,7 @@ static TFJSONSchemaValidator *validator;
     for(NSString *property in properties){
         NSString *newPath = [path isEqualToString:@""] ? property : [NSString stringWithFormat:@"%@%@%@", path, kJSONSchemaValidationPathDelimiter, property];
         if(obj[property] && properties[property]){
-            [errors addObjectsFromArray:[self validate:obj[property] atPath:newPath withSchema:properties[property]]];
+            [errors addObjectsFromArray:[self validate:obj[property] atPath:newPath schema:properties[property] definitions:definitions]];
         }
     }
     
@@ -110,7 +126,7 @@ static TFJSONSchemaValidator *validator;
     return errors;
 }
 
-- (NSArray *)validateArray:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema
+- (NSArray *)validateArray:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema definitions:(NSDictionary *)definitions
 {
     if(![value isKindOfClass:NSArray.class]){
         return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ is not a array", path]]];
@@ -122,12 +138,12 @@ static TFJSONSchemaValidator *validator;
     
     if([items isKindOfClass:NSDictionary.class]){
         for(NSInteger i = 0; i < arr.count; i++){
-            [errors addObjectsFromArray:[self validate:arr[i] atPath:[NSString stringWithFormat:@"%@[%i]", path, i] withSchema:(NSDictionary *)items]];
+            [errors addObjectsFromArray:[self validate:arr[i] atPath:[NSString stringWithFormat:@"%@[%i]", path, i] schema:(NSDictionary *)items definitions:definitions]];
         }
     } else if([items isKindOfClass:NSArray.class]) {
         NSArray *itemsArray = (NSArray *)items;
         for(NSInteger i = 0; i < itemsArray.count && i < arr.count; i++){
-            [errors addObjectsFromArray:[self validate:arr[i] atPath:[NSString stringWithFormat:@"%@[%i]", path, i] withSchema:itemsArray[i]]];
+            [errors addObjectsFromArray:[self validate:arr[i] atPath:[NSString stringWithFormat:@"%@[%i]", path, i] schema:itemsArray[i] definitions:definitions]];
         }
         
         NSNumber *additionalItems = schema[@"additionalItems"];
