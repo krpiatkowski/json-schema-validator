@@ -8,6 +8,12 @@
 
 #import "TFJSONSchemaValidator.h"
 
+typedef enum  {
+    TFBSJSONSchemaValidatorNumber,
+    TFBSJSONSchemaValidatorInteger,
+    TFBSJSONSchemaValidatorBoolean,
+} TFJSONSchemaValidatorNumericType;
+
 static NSString *kJSONSchemaValidationDomain = @"JSON Validation";
 static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
@@ -77,10 +83,22 @@ static TFJSONSchemaValidator *validator;
                 [errors addObject:error];
             }
         } else if([type isEqualToString:@"number"]){
-            NSError *error = [self validateNumber:value atPath:path withSchema:schema];
+            NSError *error = [self validateNumberic:value atPath:path withSchema:schema type:TFBSJSONSchemaValidatorNumber];
             if(error){
                 [errors addObject:error];
             }
+        } else if([type isEqualToString:@"integer"]){
+            NSError *error = [self validateNumberic:value atPath:path withSchema:schema type:TFBSJSONSchemaValidatorInteger];
+            if(error){
+                [errors addObject:error];
+            }
+        } else if([type isEqualToString:@"boolean"]){
+            NSError *error = [self validateNumberic:value atPath:path withSchema:schema type:TFBSJSONSchemaValidatorBoolean];
+            if(error){
+                [errors addObject:error];
+            }
+        } else if([type isEqualToString:@"null"]){
+            
         } else {
             [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ is of unsupported type at %@", type, path]]];
         }
@@ -201,12 +219,25 @@ static TFJSONSchemaValidator *validator;
     return nil;
 }
 
-- (NSError *)validateNumber:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema
+- (NSError *)validateNumberic:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema type:(TFJSONSchemaValidatorNumericType)type
 {
     if(![value isKindOfClass:NSNumber.class]){
-        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a number", path]];
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not numberic", path]];
     }
+    
     NSNumber *number = (NSNumber *)value;
+    NSLog(@"%d %@",type, [[NSString alloc] initWithCString:@encode(BOOL) encoding:NSUTF8StringEncoding]);
+
+    if(type == TFBSJSONSchemaValidatorInteger && strcmp([number objCType], @encode(NSInteger)) != 0){
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a integer", path]];
+    }
+
+    
+    //Bools are chars
+    if(type == TFBSJSONSchemaValidatorBoolean && strcmp([number objCType], @encode(char)) != 0){
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a boolean", path]];
+    }
+    
     NSNumber *maximum = schema[@"maximum"];
     if(maximum && [number compare:maximum] == NSOrderedDescending){
         return [self errorWithMessage:[NSString stringWithFormat:@"%@ is is greater then %@", path, [maximum stringValue]]];
@@ -232,7 +263,7 @@ static TFJSONSchemaValidator *validator;
     }
     NSString *str = @"";
     if(!errors.userInfo[@"errors"]){
-        str = errors.userInfo[@"message"];
+        str = [errors description];
     } else {
         for(NSError *error in errors.userInfo[@"errors"]){
             str = [NSString stringWithFormat:@"%@%@\n", str, error.userInfo[@"message"]];

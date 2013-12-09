@@ -10,11 +10,11 @@
 #import "TFJSONSchemaValidatorAbstractTests.h"
 #import "TFJSONSchemaValidator.h"
 
-@interface TFJSONSchemaValidatorNumberTests : TFJSONSchemaValidatorAbstractTests
+@interface TFJSONSchemaValidatorNumbericTests : TFJSONSchemaValidatorAbstractTests
 
 @end
 
-@implementation TFJSONSchemaValidatorNumberTests
+@implementation TFJSONSchemaValidatorNumbericTests
 - (NSString *)schema
 {
     return @"TFJSONSchemaValidatorNumberTests";
@@ -53,6 +53,36 @@
 - (void)testNumberNegative
 {
     BOOL status = [self assertOk:@{@"testPropNegative" : @(-199)}];
+    XCTAssert(status);
+}
+
+- (void)testIntegerFail
+{
+    BOOL status = [self assertFail:@{@"testInteger" : @(1.1)}];
+    XCTAssert(status);
+}
+
+- (void)testBoolean
+{
+    NSString *jsonString = @"{\"testBoolean\":true}";
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+    BOOL status = [self assertOk:json];
+    XCTAssert(status);
+}
+
+- (void)testBooleanFail
+{
+    NSString *jsonString = @"{\"testBoolean\":1.2}";
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+    BOOL status = [self assertFail:json];
+    XCTAssert(status);
+}
+
+- (void)testBooleanFail2
+{
+    NSString *jsonString = @"{\"testBoolean\":1}";
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+    BOOL status = [self assertFail:json];
     XCTAssert(status);
 }
 @end

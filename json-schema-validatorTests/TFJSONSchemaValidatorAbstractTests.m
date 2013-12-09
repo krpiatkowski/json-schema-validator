@@ -26,7 +26,7 @@
 - (BOOL)assertFail:(NSDictionary *)json
 {
     NSError *error = [[TFJSONSchemaValidator validator] validate:json withSchemaPath:[self schema] bundle:[NSBundle bundleForClass:[self class]]];
-    if(error != nil){
+    if(error == nil){
         NSLog(@"Validation ok, should fail");
     }
     return error != nil;

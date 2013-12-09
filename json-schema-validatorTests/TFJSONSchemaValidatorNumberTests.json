@@ -10,6 +10,12 @@
             "type" : "number",
             "maximum" : -100,
             "minimum" : -999
+        },
+        "testInteger": {
+            "type" : "integer"
+        },
+        "testBoolean": {
+            "type" : "boolean"
         }
     }
 }
