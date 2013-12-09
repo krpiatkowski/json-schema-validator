@@ -1,3 +1,6 @@
 {
-    "type": "string"
+    "$ref" : "#/definition/stringType",
+    "definition" : {
+        "stringType" : "string"
+    }
 }
