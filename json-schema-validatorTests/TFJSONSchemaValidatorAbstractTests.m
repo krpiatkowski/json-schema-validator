@@ -18,14 +18,14 @@
 
 - (BOOL)assertOk:(NSDictionary *)json
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:json withSchemaPath:[self schema] bundle:[NSBundle bundleForClass:[self class]]];
+    NSError *error = [[[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle bundleForClass:[self class]]] validate:json withSchemaPath:[self schema]];
     NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
     return !error;
 }
 
 - (BOOL)assertFail:(NSDictionary *)json
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:json withSchemaPath:[self schema] bundle:[NSBundle bundleForClass:[self class]]];
+    NSError *error = [[[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle bundleForClass:[self class]]] validate:json withSchemaPath:[self schema]];
     if(error == nil){
         NSLog(@"Validation ok, should fail");
     }

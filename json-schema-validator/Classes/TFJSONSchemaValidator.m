@@ -17,35 +17,44 @@ typedef enum  {
 static NSString *kJSONSchemaValidationDomain = @"JSON Validation";
 static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
-@implementation TFJSONSchemaValidator
+@implementation TFJSONSchemaValidator{
+    NSBundle *_bundle;
+}
 
 static TFJSONSchemaValidator *validator;
 + (TFJSONSchemaValidator *)validator
 {
     if(!validator){
-        validator = [[TFJSONSchemaValidator alloc] init];
+        validator = [[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle mainBundle]];
     }
     
     return validator;
 }
 
-- (NSError *)validate:(NSDictionary *)jsonObject withSchemaPath:(NSString *)path
+- (id)initWithBundle:(NSBundle *)bundle
 {
-    return [self validate:jsonObject withSchemaPath:path bundle:[NSBundle mainBundle]];
+    self = [super init];
+    if (self) {
+        _bundle = bundle;
+    }
+    return self;
 }
 
-- (NSError *)validate:(NSDictionary *)jsonObject withSchemaPath:(NSString *)path bundle:(NSBundle *)bundle
+- (NSError *)validate:(NSDictionary *)jsonObject withSchemaPath:(NSString *)path
 {
-    NSString *realPath = [bundle pathForResource:path ofType:@"json"];
     NSError *error;
-    NSDictionary *schema = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:realPath] options: NSJSONReadingMutableContainers error: &error];
+    NSDictionary *schema = [self loadSchemaFromPath:path error:error];
     if(error){
-        return [self errorWithMessage:@""];
+        return error;
     }
     return [self validate:jsonObject withSchema:schema];
 }
 
-
+- (NSDictionary *)loadSchemaFromPath:(NSString *)path error:(NSError *)error
+{
+    NSString *realPath = [_bundle pathForResource:path ofType:@"json"];
+    return [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:realPath] options:0 error: &error];
+}
 
 - (NSError *)validate:(NSDictionary *)jsonObject withSchema:(NSDictionary *)schema
 {
@@ -67,7 +76,7 @@ static TFJSONSchemaValidator *validator;
 }
 
 
-- (NSArray *)validate:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSDictionary *)definitions
+- (NSArray *)validate:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
 {
     
     NSString *type = schema[@"type"];
@@ -113,13 +122,29 @@ static TFJSONSchemaValidator *validator;
             entry = [ref stringByReplacingOccurrencesOfString:@"#/definitions/" withString:@""];
         } else if([ref hasPrefix:@"#"]){
             entry = @"#";
+        } else if([ref hasPrefix:@"bundle://"]){
+            if(!_bundle){
+               return @[[self errorWithMessage:@"Bundle not set, bundle:// not supported when schema from dictionary"]];
+            }
+            
+            entry = [ref stringByReplacingOccurrencesOfString:@"bundle://" withString:@""];
+            entry = [entry stringByReplacingOccurrencesOfString:@".json" withString:@""];
+            
+            NSError *error;
+            NSDictionary *schema = [self loadSchemaFromPath:entry error:error];
+            if(error){
+                return @[error];
+            }
+            
+            definitions[ref] = schema;
+            entry = ref;
         }
         return [self validate:value atPath:path schema:definitions[entry] definitions:definitions];
     }
     return @[];
 }
 
-- (NSArray *)validateObject:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSDictionary *)definitions
+- (NSArray *)validateObject:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
 {
     if(![value isKindOfClass:NSDictionary.class]){
         return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ is not a object", path]]];
@@ -166,7 +191,7 @@ static TFJSONSchemaValidator *validator;
     return errors;
 }
 
-- (NSArray *)validateArray:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema definitions:(NSDictionary *)definitions
+- (NSArray *)validateArray:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
 {
     if(![value isKindOfClass:NSArray.class]){
         return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ is not a array", path]]];
@@ -239,19 +264,19 @@ static TFJSONSchemaValidator *validator;
 - (NSError *)validateNumberic:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema type:(TFJSONSchemaValidatorNumericType)type
 {
     if(![value isKindOfClass:NSNumber.class]){
-        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not numberic", path]];
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not numberic (%@)", path, value]];
     }
     
     NSNumber *number = (NSNumber *)value;
-    NSLog(@"%d %@",type, [[NSString alloc] initWithCString:@encode(BOOL) encoding:NSUTF8StringEncoding]);
 
-    if(type == TFBSJSONSchemaValidatorInteger && strcmp([number objCType], @encode(NSInteger)) != 0){
-        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a integer", path]];
+    BOOL isInteger = (strcmp([number objCType], @encode(NSInteger)) == 0 || strcmp([number objCType], @encode(long long)) == 0);
+    if(type == TFBSJSONSchemaValidatorInteger && !isInteger) {
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a integer (%@)", path, value]];
     }
     
     //Bools are chars
     if(type == TFBSJSONSchemaValidatorBoolean && strcmp([number objCType], @encode(char)) != 0){
-        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a boolean", path]];
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a boolean (%@)", path, value]];
     }
     
     NSNumber *maximum = schema[@"maximum"];

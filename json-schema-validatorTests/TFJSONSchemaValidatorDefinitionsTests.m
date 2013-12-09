@@ -30,4 +30,10 @@
     BOOL status = [self assertFail:@{@"testDefinitions" : @"AABBCC"}];
     XCTAssert(status);
 }
+
+- (void)testBundleDefinitionsFailed
+{
+    BOOL status = [self assertFail:@{@"testBundle" : @(1)}];
+    XCTAssert(status);
+}
 @end
