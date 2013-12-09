@@ -21,14 +21,9 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     NSBundle *_bundle;
 }
 
-static TFJSONSchemaValidator *validator;
 + (TFJSONSchemaValidator *)validator
 {
-    if(!validator){
-        validator = [[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle mainBundle]];
-    }
-    
-    return validator;
+    return [[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle mainBundle]];
 }
 
 - (id)initWithBundle:(NSBundle *)bundle
@@ -67,7 +62,7 @@ static TFJSONSchemaValidator *validator;
     }
     definitions[@"#"] = schema;
     
-    NSArray *errors = [self validate:jsonObject atPath:@"" schema:schema definitions:definitions];
+    NSArray *errors = [self validate:jsonObject atPath:@"#" schema:schema definitions:definitions];
     
     if(errors.count > 0){
         return [NSError errorWithDomain:kJSONSchemaValidationDomain code:1 userInfo:@{@"message" : @"Validation failed", @"errors" : errors}];
@@ -155,7 +150,7 @@ static TFJSONSchemaValidator *validator;
     NSMutableArray *errors = [NSMutableArray new];
     NSDictionary *properties = schema[@"properties"];
     for(NSString *property in properties){
-        NSString *newPath = [path isEqualToString:@""] ? property : [NSString stringWithFormat:@"%@%@%@", path, kJSONSchemaValidationPathDelimiter, property];
+        NSString *newPath = [NSString stringWithFormat:@"%@%@%@", path, kJSONSchemaValidationPathDelimiter, property];
         if(obj[property] && properties[property]){
             [errors addObjectsFromArray:[self validate:obj[property] atPath:newPath schema:properties[property] definitions:definitions]];
         }
@@ -170,7 +165,7 @@ static TFJSONSchemaValidator *validator;
         for(NSString *objKey in obj.allKeys){
             if(!properties[objKey]){
                 if([reg numberOfMatchesInString:objKey options:0 range:NSMakeRange(0, objKey.length)]){
-                    NSString *newPath = [path isEqualToString:@""] ? objKey : [NSString stringWithFormat:@"%@%@%@", path, kJSONSchemaValidationPathDelimiter, objKey];
+                    NSString *newPath = [NSString stringWithFormat:@"%@%@%@", path, kJSONSchemaValidationPathDelimiter, objKey];
                     [errors addObjectsFromArray:[self validate:obj[objKey] atPath:newPath schema:patternProperties[property] definitions:definitions]];
                 }
             }
@@ -185,7 +180,13 @@ static TFJSONSchemaValidator *validator;
     [missingSet minusSet:valuesSet];
     
     if(required && missingSet.count > 0){
-        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ is missing properties %@ which are required", path, missingSet]]];
+        NSString *msg;
+        if(missingSet.count > 1){
+            msg = @"%@ is missing properties (%@) which are required";
+        } else {
+            msg = @"%@ is missing property (%@) which s required";
+        }
+        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:msg, path, [[missingSet allObjects] componentsJoinedByString:@","]]]];
     }
     
     return errors;
@@ -220,12 +221,12 @@ static TFJSONSchemaValidator *validator;
     
     NSNumber *minItems = schema[@"minItems"];
     if(minItems && arr.count < [minItems integerValue]){
-        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ must a minimum of %i items, it has %i", path, [minItems integerValue], arr.count]]];
+        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ must have a minimum of %i items, it has %i", path, [minItems integerValue], arr.count]]];
     }
 
     NSNumber *maxItems = schema[@"maxItems"];
     if(maxItems && arr.count > [maxItems integerValue] ){
-        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ must a maximum of %i items, it has %i", path, [maxItems integerValue], arr.count]]];
+        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ must have a maximum of %i items, it has %i", path, [maxItems integerValue], arr.count]]];
     }
 
     return errors;
