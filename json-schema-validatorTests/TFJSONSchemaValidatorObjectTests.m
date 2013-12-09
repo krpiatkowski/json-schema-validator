@@ -41,4 +41,23 @@
     BOOL status = [self assertFail:@{@"missing" : @{@"prop1" : @"prop1"}}];
     XCTAssert(status);
 }
+
+
+- (void)testPatternProperties
+{
+    BOOL status = [self assertOk:@{@"testA" : @"string"}];
+    XCTAssert(status);
+}
+
+- (void)testPatternProperties2
+{
+    BOOL status = [self assertOk:@{@"testA" : @"string", @"testB" : @"string"}];
+    XCTAssert(status);
+}
+
+- (void)testPatternPropertiesFail
+{
+    BOOL status = [self assertFail:@{@"testA" : @"string", @"testB" : @(1)}];
+    XCTAssert(status);
+}
 @end

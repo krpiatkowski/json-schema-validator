@@ -136,6 +136,23 @@ static TFJSONSchemaValidator *validator;
         }
     }
     
+    
+    NSDictionary *patternProperties = schema[@"patternProperties"];
+    for(NSString *property in patternProperties){
+        NSError *error;
+        NSRegularExpression *reg = [NSRegularExpression regularExpressionWithPattern:property options:0 error:&error];
+
+        for(NSString *objKey in obj.allKeys){
+            if(!properties[objKey]){
+                if([reg numberOfMatchesInString:objKey options:0 range:NSMakeRange(0, objKey.length)]){
+                    NSString *newPath = [path isEqualToString:@""] ? objKey : [NSString stringWithFormat:@"%@%@%@", path, kJSONSchemaValidationPathDelimiter, objKey];
+                    [errors addObjectsFromArray:[self validate:obj[objKey] atPath:newPath schema:patternProperties[property] definitions:definitions]];
+                }
+            }
+        }
+    }
+    
+    
     NSArray *required = schema[@"required"];
     NSSet *requiredSet = [NSSet setWithArray:required];
     NSSet *valuesSet = [NSSet setWithArray:obj.allKeys];
@@ -231,7 +248,6 @@ static TFJSONSchemaValidator *validator;
     if(type == TFBSJSONSchemaValidatorInteger && strcmp([number objCType], @encode(NSInteger)) != 0){
         return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a integer", path]];
     }
-
     
     //Bools are chars
     if(type == TFBSJSONSchemaValidatorBoolean && strcmp([number objCType], @encode(char)) != 0){
