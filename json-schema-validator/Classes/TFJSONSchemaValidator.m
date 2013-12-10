@@ -127,17 +127,6 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         
         NSArray *allOfArr = schema[@"allOf"];
         if(allOfArr){
-            NSMutableArray *errorsArray = [NSMutableArray new];
-            for(NSInteger i = 0; i < allOfArr.count; i++){
-                NSString *newPath = [NSString stringWithFormat:@"%@#allOf[%i]", path, i];
-                [errorsArray addObject:[self validate:value atPath:newPath schema:allOfArr[i] definitions:definitions]];
-            }
-            
-            BOOL failed = NO;
-            for(NSArray *err in errorsArray){
-                failed = failed || err.count > 0;
-            }
-            
             if(failed){
                 [errors addObject:[self errorWithMessage:@"%@ does not validate against allOf"]];
                 for(NSArray *err in errorsArray){
@@ -181,6 +170,26 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         return [self validate:value atPath:path schema:definitions[entry] definitions:definitions];
     } else {
         return @[[self errorWithMessage:[NSString stringWithFormat:@"Schema is missing type or $ref for path %@", path]]];
+    }
+}
+
+
+- (NSArray *)validateObject:(NSObject *)value withSet:(NSArray *)set failCount:(NSInteger)failCount atPath:(NSString *)path pathPrefix:(NSString *)pathPrefix definitions:(NSMutableDictionary *)definitions
+{
+    NSInteger currentFailed = 0;
+    NSMutableArray *errors = [NSMutableArray new];
+    for(NSInteger i = 0; i < set.count; i++){
+        NSString *newPath = [NSString stringWithFormat:@"%@#%@[%i]", path, pathPrefix, i];
+        NSArray *error = [self validate:value atPath:newPath schema:set[i] definitions:definitions];
+        if(error.count > 0){
+            currentFailed++;
+        }
+        [errors addObjectsFromArray:error];
+    }
+    if(currentFailed == failCount){
+        return errors;
+    } else {
+        return @[];
     }
 }
 
