@@ -9,10 +9,15 @@
 #import "TFJSONSchemaValidator.h"
 
 typedef enum  {
-    TFBSJSONSchemaValidatorNumber,
-    TFBSJSONSchemaValidatorInteger,
-    TFBSJSONSchemaValidatorBoolean,
-} TFJSONSchemaValidatorNumericType;
+    TFJSONSchemaValidatorArray,
+    TFJSONSchemaValidatorBoolean,
+    TFJSONSchemaValidatorInteger,
+    TFJSONSchemaValidatorNumber,
+    TFJSONSchemaValidatorNull,
+    TFJSONSchemaValidatorObject,
+    TFJSONSchemaValidatorString,
+    TFJSONSchemaValidatorUnknown
+} TFJSONSchemaValidatorType;
 
 static NSString *kJSONSchemaValidationDomain = @"JSON Validation";
 static NSString *kJSONSchemaValidationPathDelimiter = @"->";
@@ -75,75 +80,83 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 {
     NSString *type = schema[@"type"];
     if(type){
+        TFJSONSchemaValidatorType t = [self stringToType:type];
+        NSError *typeError = [self validateType:value expect:t atPath:path];
+        if(typeError){
+            return @[typeError];
+        }
+
         NSMutableArray *errors = [NSMutableArray array];
-        if([type isEqualToString:@"object"]){
-            [errors addObjectsFromArray:[self validateObject:value atPath:path schema:schema definitions:definitions]];
-        } else if([type isEqualToString:@"array"]){
-            [errors addObjectsFromArray:[self validateArray:value atPath:path withSchema:schema definitions:definitions]];
-        } else if([type isEqualToString:@"string"]){
-            NSError *error = [self validateString:value atPath:path withSchema:schema];
-            if(error){
-                [errors addObject:error];
+        
+        switch (t) {
+            case TFJSONSchemaValidatorArray:{
+                [errors addObjectsFromArray:[self validateArray:value atPath:path withSchema:schema definitions:definitions]];
+                break;
             }
-        } else if([type isEqualToString:@"number"]){
-            NSError *error = [self validateNumberic:value atPath:path withSchema:schema type:TFBSJSONSchemaValidatorNumber];
-            if(error){
-                [errors addObject:error];
+            case TFJSONSchemaValidatorObject:{
+                [errors addObjectsFromArray:[self validateObject:value atPath:path schema:schema definitions:definitions]];
+                break;
             }
-        } else if([type isEqualToString:@"integer"]){
-            NSError *error = [self validateNumberic:value atPath:path withSchema:schema type:TFBSJSONSchemaValidatorInteger];
-            if(error){
-                [errors addObject:error];
+            case TFJSONSchemaValidatorBoolean:
+            case TFJSONSchemaValidatorNumber:
+            case TFJSONSchemaValidatorInteger:{
+                NSError *error = [self validateNumberic:value atPath:path withSchema:schema];
+                if(error){
+                    [errors addObject:error];
+                }
+                break;
             }
-        } else if([type isEqualToString:@"boolean"]){
-            NSError *error = [self validateNumberic:value atPath:path withSchema:schema type:TFBSJSONSchemaValidatorBoolean];
-            if(error){
-                [errors addObject:error];
+            case TFJSONSchemaValidatorString:{
+                NSError *error = [self validateString:value atPath:path withSchema:schema];
+                if(error){
+                    [errors addObject:error];
+                }
+                break;
             }
-        } else if([type isEqualToString:@"null"]){
-            
-        } else {
-            [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ is of unsupported type at %@", type, path]]];
+            case TFJSONSchemaValidatorNull:{
+                //If we dont have a type mismatch null is fine :)
+                break;
+            }
+            case TFJSONSchemaValidatorUnknown:{
+                [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ is of unsupported type at %@", type, path]]];
+                break;
+            }
         }
         return errors;
-    }
-    
-    NSString *ref = schema[@"$ref"];
-    if(ref){
-        //This is not complete, as resolution is more complex
-        NSString *entry;
-        if([ref hasPrefix:@"#/definitions/"]){
-            entry = [ref stringByReplacingOccurrencesOfString:@"#/definitions/" withString:@""];
-        } else if([ref hasPrefix:@"#"]){
-            entry = @"#";
-        } else if([ref hasPrefix:@"bundle://"]){
-            if(!_bundle){
-               return @[[self errorWithMessage:@"Bundle not set, bundle:// not supported when schema from dictionary"]];
+    } else {
+        NSString *ref = schema[@"$ref"];
+        if(ref){
+            //This is not complete, as resolution is more complex
+            NSString *entry;
+            if([ref hasPrefix:@"#/definitions/"]){
+                entry = [ref stringByReplacingOccurrencesOfString:@"#/definitions/" withString:@""];
+            } else if([ref hasPrefix:@"#"]){
+                entry = @"#";
+            } else if([ref hasPrefix:@"bundle://"]){
+                if(!_bundle){
+                    return @[[self errorWithMessage:@"Bundle not set, bundle:// not supported when schema from dictionary"]];
+                }
+                
+                entry = [ref stringByReplacingOccurrencesOfString:@"bundle://" withString:@""];
+                entry = [entry stringByReplacingOccurrencesOfString:@".json" withString:@""];
+                
+                NSError *error;
+                NSDictionary *schema = [self loadSchemaFromPath:entry error:error];
+                if(error){
+                    return @[error];
+                }
+                
+                definitions[ref] = schema;
+                entry = ref;
             }
-            
-            entry = [ref stringByReplacingOccurrencesOfString:@"bundle://" withString:@""];
-            entry = [entry stringByReplacingOccurrencesOfString:@".json" withString:@""];
-            
-            NSError *error;
-            NSDictionary *schema = [self loadSchemaFromPath:entry error:error];
-            if(error){
-                return @[error];
-            }
-            
-            definitions[ref] = schema;
-            entry = ref;
+            return [self validate:value atPath:path schema:definitions[entry] definitions:definitions];
         }
-        return [self validate:value atPath:path schema:definitions[entry] definitions:definitions];
     }
     return @[];
 }
 
 - (NSArray *)validateObject:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
 {
-    if(![value isKindOfClass:NSDictionary.class]){
-        return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ is not a object", path]]];
-    }
-    
     NSDictionary *obj = (NSDictionary *)value;
     
     NSMutableArray *errors = [NSMutableArray new];
@@ -193,9 +206,6 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
 - (NSArray *)validateArray:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
 {
-    if(![value isKindOfClass:NSArray.class]){
-        return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ is not a array", path]]];
-    }
     NSArray *arr = (NSArray *)value;
     
     NSMutableArray *errors = [NSMutableArray new];
@@ -233,9 +243,6 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
 - (NSError *)validateString:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema
 {
-    if(![value isKindOfClass:NSString.class]){
-        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a string", path]];
-    }
     NSString *str = (NSString *)value;
     NSNumber *maxLength = schema[@"maxLength"];
     if(maxLength && str.length > [maxLength integerValue]){
@@ -261,23 +268,9 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     return nil;
 }
 
-- (NSError *)validateNumberic:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema type:(TFJSONSchemaValidatorNumericType)type
+- (NSError *)validateNumberic:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema
 {
-    if(![value isKindOfClass:NSNumber.class]){
-        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not numberic (%@)", path, value]];
-    }
-    
     NSNumber *number = (NSNumber *)value;
-
-    BOOL isInteger = (strcmp([number objCType], @encode(NSInteger)) == 0 || strcmp([number objCType], @encode(long long)) == 0);
-    if(type == TFBSJSONSchemaValidatorInteger && !isInteger) {
-        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a integer (%@)", path, value]];
-    }
-    
-    //Bools are chars
-    if(type == TFBSJSONSchemaValidatorBoolean && strcmp([number objCType], @encode(char)) != 0){
-        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a boolean (%@)", path, value]];
-    }
     
     NSNumber *maximum = schema[@"maximum"];
     if(maximum && [number compare:maximum] == NSOrderedDescending){
@@ -290,6 +283,92 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     }
 
     return nil;
+}
+
+- (NSError *)validateType:(NSObject *)value expect:(TFJSONSchemaValidatorType)expect atPath:(NSString *)path
+{
+    TFJSONSchemaValidatorType valueType;
+    if([value isKindOfClass:NSString.class]){
+        valueType = TFJSONSchemaValidatorString;
+    } else if([value isKindOfClass:NSDictionary.class]){
+        valueType = TFJSONSchemaValidatorObject;
+    } else if ([value isKindOfClass:NSArray.class]){
+        valueType = TFJSONSchemaValidatorArray;
+    } else if([value isKindOfClass:NSNumber.class]){
+        NSNumber *number = (NSNumber *)value;
+        BOOL isInteger = (strcmp([number objCType], @encode(NSInteger))) == 0 ||
+                         (strcmp([number objCType], @encode(int)))       == 0 ||
+                         (strcmp([number objCType], @encode(long)))      == 0 ||
+                         (strcmp([number objCType], @encode(long long))) == 0;
+        
+        if(isInteger){
+            valueType = TFJSONSchemaValidatorInteger;
+        } else if(strcmp([number objCType], @encode(char)) == 0){
+            //Bools are chars
+            valueType = TFJSONSchemaValidatorBoolean;
+        } else {
+            valueType = TFJSONSchemaValidatorNumber;
+        }
+        
+        //if we expect a numeric and we get an integer, we can live with that.
+        if(valueType == TFJSONSchemaValidatorInteger && expect == TFJSONSchemaValidatorNumber){
+            valueType = TFJSONSchemaValidatorNumber;
+        }
+        
+    } else if([value isKindOfClass:NSNull.class]){
+        valueType = TFJSONSchemaValidatorNull;
+    } else {
+        valueType = TFJSONSchemaValidatorUnknown;
+    }
+    
+    if(valueType != expect){
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is a \"%@\" expected a \"%@\"", path, [self typeToString:valueType], [self typeToString:expect]]];
+    } else {
+        return nil;
+    }
+}
+
+- (TFJSONSchemaValidatorType)stringToType:(NSString *)type
+{
+    if([type isEqualToString:@"array"]){
+        return TFJSONSchemaValidatorArray;
+    } else if([type isEqualToString:@"boolean"]){
+        return TFJSONSchemaValidatorBoolean;
+    } else if([type isEqualToString:@"integer"]){
+        return TFJSONSchemaValidatorInteger;
+    } else if([type isEqualToString:@"number"]){
+        return TFJSONSchemaValidatorNumber;
+    } else if([type isEqualToString:@"null"]){
+        return TFJSONSchemaValidatorNull;
+    } else if([type isEqualToString:@"object"]){
+        return TFJSONSchemaValidatorObject;
+    } else if([type isEqualToString:@"string"]){
+        return TFJSONSchemaValidatorString;
+    } else {
+        return TFJSONSchemaValidatorUnknown;
+    }
+}
+
+- (NSString *)typeToString:(TFJSONSchemaValidatorType)type
+{
+    switch (type) {
+        case TFJSONSchemaValidatorArray:
+            return @"array";
+        case TFJSONSchemaValidatorObject:
+            return @"object";
+        case TFJSONSchemaValidatorString:
+            return @"string";
+        case TFJSONSchemaValidatorNull:
+            return @"null";
+        case TFJSONSchemaValidatorBoolean:
+            return @"boolean";
+        case TFJSONSchemaValidatorInteger:
+            return @"integer";
+        case TFJSONSchemaValidatorNumber:
+            return @"number";
+        case TFJSONSchemaValidatorUnknown:
+            return @"unknown";
+    }
 }
 
 - (NSError *)errorWithMessage:(NSString *)message
