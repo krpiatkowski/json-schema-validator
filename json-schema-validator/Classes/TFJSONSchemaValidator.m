@@ -79,6 +79,8 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 - (NSArray *)validate:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
 {
     NSString *type = schema[@"type"];
+    NSString *ref = schema[@"$ref"];
+
     if(type){
         TFJSONSchemaValidatorType t = [self stringToType:type];
         NSError *typeError = [self validateType:value expect:t atPath:path];
@@ -122,37 +124,64 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
                 break;
             }
         }
-        return errors;
-    } else {
-        NSString *ref = schema[@"$ref"];
-        if(ref){
-            //This is not complete, as resolution is more complex
-            NSString *entry;
-            if([ref hasPrefix:@"#/definitions/"]){
-                entry = [ref stringByReplacingOccurrencesOfString:@"#/definitions/" withString:@""];
-            } else if([ref hasPrefix:@"#"]){
-                entry = @"#";
-            } else if([ref hasPrefix:@"bundle://"]){
-                if(!_bundle){
-                    return @[[self errorWithMessage:@"Bundle not set, bundle:// not supported when schema from dictionary"]];
-                }
-                
-                entry = [ref stringByReplacingOccurrencesOfString:@"bundle://" withString:@""];
-                entry = [entry stringByReplacingOccurrencesOfString:@".json" withString:@""];
-                
-                NSError *error;
-                NSDictionary *schema = [self loadSchemaFromPath:entry error:error];
-                if(error){
-                    return @[error];
-                }
-                
-                definitions[ref] = schema;
-                entry = ref;
+        
+        NSArray *allOfArr = schema[@"allOf"];
+        if(allOfArr){
+            NSMutableArray *errorsArray = [NSMutableArray new];
+            for(NSInteger i = 0; i < allOfArr.count; i++){
+                NSString *newPath = [NSString stringWithFormat:@"%@#allOf[%i]", path, i];
+                [errorsArray addObject:[self validate:value atPath:newPath schema:allOfArr[i] definitions:definitions]];
             }
-            return [self validate:value atPath:path schema:definitions[entry] definitions:definitions];
+            
+            BOOL failed = NO;
+            for(NSArray *err in errorsArray){
+                failed = failed || err.count > 0;
+            }
+            
+            if(failed){
+                [errors addObject:[self errorWithMessage:@"%@ does not validate against allOf"]];
+                for(NSArray *err in errorsArray){
+                    [errors addObjectsFromArray:err];
+                }
+            }
         }
+        
+//        "anyOf": { "$ref": "#/definitions/schemaArray" },
+//        "oneOf": { "$ref": "#/definitions/schemaArray" },
+//        "not"
+        
+        
+        
+        
+        return errors;
+    } else if(ref) {
+        //This is not complete, as resolution is more complex
+        NSString *entry;
+        if([ref hasPrefix:@"#/definitions/"]){
+            entry = [ref stringByReplacingOccurrencesOfString:@"#/definitions/" withString:@""];
+        } else if([ref hasPrefix:@"#"]){
+            entry = @"#";
+        } else if([ref hasPrefix:@"bundle://"]){
+            if(!_bundle){
+                return @[[self errorWithMessage:@"Bundle not set, bundle:// not supported when schema from dictionary"]];
+            }
+            
+            entry = [ref stringByReplacingOccurrencesOfString:@"bundle://" withString:@""];
+            entry = [entry stringByReplacingOccurrencesOfString:@".json" withString:@""];
+            
+            NSError *error;
+            NSDictionary *schema = [self loadSchemaFromPath:entry error:error];
+            if(error){
+                return @[error];
+            }
+            
+            definitions[ref] = schema;
+            entry = ref;
+        }
+        return [self validate:value atPath:path schema:definitions[entry] definitions:definitions];
+    } else {
+        return @[[self errorWithMessage:[NSString stringWithFormat:@"Schema is missing type or $ref for path %@", path]]];
     }
-    return @[];
 }
 
 - (NSArray *)validateObject:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
