@@ -11,4 +11,6 @@
 - (NSString *)schema;
 - (BOOL)assertOk:(NSDictionary *)json;
 - (BOOL)assertFail:(NSDictionary *)json;
+- (BOOL)assertOKWithSchema:(NSString *)schema data:(NSString *)data;
+- (BOOL)assertFailWithSchema:(NSString *)schema data:(NSString *)data;
 @end

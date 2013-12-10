@@ -73,7 +73,6 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
 - (NSArray *)validate:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
 {
-    
     NSString *type = schema[@"type"];
     if(type){
         NSMutableArray *errors = [NSMutableArray array];
@@ -184,7 +183,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         if(missingSet.count > 1){
             msg = @"%@ is missing properties (%@) which are required";
         } else {
-            msg = @"%@ is missing property (%@) which s required";
+            msg = @"%@ is missing property (%@) which is required";
         }
         [errors addObject:[self errorWithMessage:[NSString stringWithFormat:msg, path, [[missingSet allObjects] componentsJoinedByString:@","]]]];
     }
