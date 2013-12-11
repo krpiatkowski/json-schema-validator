@@ -127,6 +127,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
             NSArray *allOfArr = schema[@"allOf"];
             NSArray *errs = [self validateObject:value withSet:allOfArr atPath:path pathPrefix:@"allOf" definitions:definitions];
             if(errs.count != 0){
+                [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ does not match \"allOf\"", path]]];
                 for(NSArray *e in errs){
                     [errors addObjectsFromArray:e];
                 }
@@ -137,6 +138,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
             NSArray *anyOfArr = schema[@"anyOf"];
             NSArray *errs = [self validateObject:value withSet:anyOfArr atPath:path pathPrefix:@"anyOf" definitions:definitions];
             if(errs.count == anyOfArr.count){
+                [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ does not match \"anyOf\"", path]]];
                 for(NSArray *e in errs){
                     [errors addObjectsFromArray:e];
                 }
@@ -145,8 +147,22 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         
         if(schema[@"oneOf"]){
             NSArray *oneOfArr = schema[@"oneOf"];
-            NSArray *errs = [self validateObject:value withSet:oneOfArr atPath:path pathPrefix:@"oneOf" definitions:definitions];
-            if(errs.count-1 != oneOfArr.count){
+            NSMutableArray *matches = [NSMutableArray array];
+            NSMutableArray *errs = [NSMutableArray array];
+            
+            for(NSInteger i = 0; i < oneOfArr.count; i++){
+                NSString *newPath = [NSString stringWithFormat:@"%@@oneOf[%i]", path, i];
+                NSArray *error = [self validate:value atPath:newPath schema:oneOfArr[i] definitions:definitions];
+                if(error.count == 0){
+                    [matches addObject:@(i)];
+                } else {
+                    [errs addObject:error];
+                }
+            }
+            
+            if(matches.count != 1){
+                NSString *matchesStr = matches.count > 0 ? [NSString stringWithFormat:@", matches [%@]", [matches componentsJoinedByString:@","]] : @"";
+                [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ does not match \"oneOf\"%@", path, matchesStr]]];
                 for(NSArray *e in errs){
                     [errors addObjectsFromArray:e];
                 }

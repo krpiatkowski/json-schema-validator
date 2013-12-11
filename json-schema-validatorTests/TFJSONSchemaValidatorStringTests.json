@@ -9,6 +9,10 @@
         "testRegExp": {
             "type" : "string",
             "pattern" : "\\d{2}[a-zA-Z]{4}"
+        },
+        "testFormatRegexp" : {
+            "type" : "string",
+            "format" : "regexp"
         }
     }
 }

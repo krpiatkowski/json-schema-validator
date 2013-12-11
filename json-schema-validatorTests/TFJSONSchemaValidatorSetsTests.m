@@ -46,7 +46,7 @@
 
 - (void)testOneOf
 {
-    BOOL status = [self assertOk:@{@"testOneOf" : @(4)}];
+    BOOL status = [self assertOk:@{@"testOneOf" : @(2)}];
     XCTAssert(status);
 }
 

@@ -56,4 +56,17 @@
     BOOL status = [self assertFail:@{@"testRegExp" : @"012acd"}];
     XCTAssert(status);
 }
+
+- (void)testFormatRegexp
+{
+    BOOL status = [self assertFail:@{@"testRegExp" : @"[abc]*"}];
+    XCTAssert(status);
+}
+
+- (void)testFormatRegexpFail
+{
+    BOOL status = [self assertFail:@{@"testRegExp" : @"((("}];
+    XCTAssert(status);
+}
+
 @end
