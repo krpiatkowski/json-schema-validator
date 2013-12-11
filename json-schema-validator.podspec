@@ -14,8 +14,8 @@ Pod::Spec.new do |s|
   s.platform     = :ios, '7.0'
   s.source       = { :git => "https://github.com/krpiatkowski/json-schema-validator.git", :tag => "0.0.1" }
 
-  s.source_files  = 'Classes', 'json-schema-validator/Classes/**/*.{h,m}'
-  s.exclude_files = 'Classes/Exclude'
+  s.source_files  = 'json-schema-validator/Classes/**/*.{h,m}'
+  s.resources     = 'json-schema-validator/Resources/**/*.{json}'
 
   s.requires_arc = true
 end
