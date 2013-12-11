@@ -1,4 +1,4 @@
-//
+ //
 //  TFJSONSchemaValidator.m
 //  json-schema-validator
 //
@@ -78,10 +78,8 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
 - (NSArray *)validate:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
 {
-    NSString *type = schema[@"type"];
-    NSString *ref = schema[@"$ref"];
-
-    if(type){
+    if(schema[@"type"]){
+        NSString *type = schema[@"type"];
         TFJSONSchemaValidatorType t = [self stringToType:type];
         NSError *typeError = [self validateType:value expect:t atPath:path];
         if(typeError){
@@ -125,25 +123,40 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
             }
         }
         
-        NSArray *allOfArr = schema[@"allOf"];
-        if(allOfArr){
-            if(failed){
-                [errors addObject:[self errorWithMessage:@"%@ does not validate against allOf"]];
-                for(NSArray *err in errorsArray){
-                    [errors addObjectsFromArray:err];
+        if(schema[@"allOf"]){
+            NSArray *allOfArr = schema[@"allOf"];
+            NSArray *errs = [self validateObject:value withSet:allOfArr atPath:path pathPrefix:@"allOf" definitions:definitions];
+            if(errs.count != 0){
+                for(NSArray *e in errs){
+                    [errors addObjectsFromArray:e];
                 }
             }
         }
         
-//        "anyOf": { "$ref": "#/definitions/schemaArray" },
-//        "oneOf": { "$ref": "#/definitions/schemaArray" },
-//        "not"
+        if(schema[@"anyOf"]){
+            NSArray *anyOfArr = schema[@"anyOf"];
+            NSArray *errs = [self validateObject:value withSet:anyOfArr atPath:path pathPrefix:@"anyOf" definitions:definitions];
+            if(errs.count == anyOfArr.count){
+                for(NSArray *e in errs){
+                    [errors addObjectsFromArray:e];
+                }
+            }
+        }
         
-        
-        
+        if(schema[@"oneOf"]){
+            NSArray *oneOfArr = schema[@"oneOf"];
+            NSArray *errs = [self validateObject:value withSet:oneOfArr atPath:path pathPrefix:@"oneOf" definitions:definitions];
+            if(errs.count-1 != oneOfArr.count){
+                for(NSArray *e in errs){
+                    [errors addObjectsFromArray:e];
+                }
+            }
+        }
         
         return errors;
-    } else if(ref) {
+    } else if(schema[@"$ref"]) {
+        NSString *ref = schema[@"$ref"];
+
         //This is not complete, as resolution is more complex
         NSString *entry;
         if([ref hasPrefix:@"#/definitions/"]){
@@ -174,23 +187,17 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 }
 
 
-- (NSArray *)validateObject:(NSObject *)value withSet:(NSArray *)set failCount:(NSInteger)failCount atPath:(NSString *)path pathPrefix:(NSString *)pathPrefix definitions:(NSMutableDictionary *)definitions
+- (NSArray *)validateObject:(NSObject *)value withSet:(NSArray *)set atPath:(NSString *)path pathPrefix:(NSString *)pathPrefix definitions:(NSMutableDictionary *)definitions
 {
-    NSInteger currentFailed = 0;
     NSMutableArray *errors = [NSMutableArray new];
     for(NSInteger i = 0; i < set.count; i++){
-        NSString *newPath = [NSString stringWithFormat:@"%@#%@[%i]", path, pathPrefix, i];
+        NSString *newPath = [NSString stringWithFormat:@"%@@%@[%i]", path, pathPrefix, i];
         NSArray *error = [self validate:value atPath:newPath schema:set[i] definitions:definitions];
         if(error.count > 0){
-            currentFailed++;
+            [errors addObject:error];
         }
-        [errors addObjectsFromArray:error];
     }
-    if(currentFailed == failCount){
-        return errors;
-    } else {
-        return @[];
-    }
+    return errors;
 }
 
 - (NSArray *)validateObject:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
@@ -282,6 +289,18 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 - (NSError *)validateString:(NSObject *)value atPath:(NSString *)path withSchema:(NSDictionary *)schema
 {
     NSString *str = (NSString *)value;
+    
+    if(schema[@"format"]){
+        NSString *format = schema[@"format"];
+        NSError *error = nil;
+        if([format isEqualToString:@"regex"]){
+            [NSRegularExpression regularExpressionWithPattern:str options:0 error:&error];
+            if(error){
+                return [self errorWithMessage:[NSString stringWithFormat:@"%@ is not a valid regex (%@)", str, str]];
+            }
+        }
+    }
+    
     NSNumber *maxLength = schema[@"maxLength"];
     if(maxLength && str.length > [maxLength integerValue]){
         return [self errorWithMessage:[NSString stringWithFormat:@"%@ has a length > %d", path, [maxLength integerValue]]];
@@ -317,7 +336,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
     NSNumber *minimum = schema[@"minimum"];
     if(minimum && [number compare:minimum] == NSOrderedAscending){
-        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is is less then %@", path, [maximum stringValue]]];
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ is is less then %@", path, [minimum stringValue]]];
     }
 
     return nil;
