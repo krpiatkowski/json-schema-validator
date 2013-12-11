@@ -22,8 +22,19 @@ typedef enum  {
 static NSString *kJSONSchemaValidationDomain = @"JSON Validation";
 static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
+@interface TFJSONSchemaWrapper : NSObject{
+    @public
+    NSDictionary *schema;
+    NSError *error;
+}
+@end
+
+@implementation TFJSONSchemaWrapper
+@end
+
 @implementation TFJSONSchemaValidator{
     NSBundle *_bundle;
+    NSDictionary *_validatorSchema;
 }
 
 + (TFJSONSchemaValidator *)validator
@@ -42,18 +53,41 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
 - (NSError *)validate:(NSDictionary *)jsonObject withSchemaPath:(NSString *)path
 {
-    NSError *error;
-    NSDictionary *schema = [self loadSchemaFromPath:path error:error];
-    if(error){
-        return error;
+    TFJSONSchemaWrapper *s = [self loadSchemaFromPath:@"validator_schema"];
+    if(s->error){
+        return s->error;
     }
-    return [self validate:jsonObject withSchema:schema];
+    _validatorSchema = s->schema;
+    
+    s = [self loadSchemaFromPath:path];
+    if(s->error){
+        return s->error;
+    }
+    
+    return [self validate:jsonObject withSchema:s->schema];
 }
 
-- (NSDictionary *)loadSchemaFromPath:(NSString *)path error:(NSError *)error
+- (TFJSONSchemaWrapper *)loadSchemaFromPath:(NSString *)path
 {
+    NSError *error;
     NSString *realPath = [_bundle pathForResource:path ofType:@"json"];
-    return [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:realPath] options:0 error: &error];
+    NSDictionary *schema = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:realPath] options:0 error:&error];
+    TFJSONSchemaWrapper *wrapper = [TFJSONSchemaWrapper new];
+    if(error){
+        wrapper->error = error;
+        return wrapper;
+    }
+    
+    if(![path isEqualToString:@"validator_schema"]){
+        error = [self validate:schema withSchema:_validatorSchema];
+        if(error){
+            wrapper->error = error;
+            return wrapper;
+        }
+    }
+    
+    wrapper->schema = schema;
+    return wrapper;
 }
 
 - (NSError *)validate:(NSDictionary *)jsonObject withSchema:(NSDictionary *)schema
@@ -78,16 +112,28 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
 - (NSArray *)validate:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
 {
+    NSArray *schemaTypes = @[@"type", @"allOf", @"anyOf", @"oneOf", @"$ref", @"enum"];
+    BOOL found = NO;
+    for(NSString *type in schemaTypes){
+        if(schema[type]){
+            if(found){
+                return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ must only have of of the following properties [%@]", path, [schemaTypes componentsJoinedByString:@","]]]];
+            }
+            found = YES;
+        }
+    }
+    
+    
     if(schema[@"type"]){
         NSString *type = schema[@"type"];
+
         TFJSONSchemaValidatorType t = [self stringToType:type];
         NSError *typeError = [self validateType:value expect:t atPath:path];
         if(typeError){
             return @[typeError];
         }
-
-        NSMutableArray *errors = [NSMutableArray array];
         
+        NSMutableArray *errors = [NSMutableArray array];
         switch (t) {
             case TFJSONSchemaValidatorArray:{
                 [errors addObjectsFromArray:[self validateArray:value atPath:path withSchema:schema definitions:definitions]];
@@ -122,56 +168,59 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
                 break;
             }
         }
+        return errors;
+    } else if(schema[@"allOf"]){
+        NSArray *allOfArr = schema[@"allOf"];
+        NSMutableArray *errors = [NSMutableArray array];
+
+        NSArray *validationErrors = [self validateObject:value withSet:allOfArr atPath:path pathPrefix:@"allOf" definitions:definitions];
+        if(validationErrors.count != 0){
+            [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ does not match \"allOf\"", path]]];
+            for(NSArray *e in validationErrors){
+                [errors addObjectsFromArray:e];
+            }
+        }
+        return errors;
+    } else if(schema[@"anyOf"]){
+        NSArray *anyOfArr = schema[@"anyOf"];
+        NSMutableArray *errors = [NSMutableArray array];
+
+        NSArray *validationErrors = [self validateObject:value withSet:anyOfArr atPath:path pathPrefix:@"anyOf" definitions:definitions];
+        if(validationErrors.count == anyOfArr.count){
+            [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ does not match \"anyOf\"", path]]];
+            for(NSArray *e in validationErrors){
+                [errors addObjectsFromArray:e];
+            }
+        }
+        return errors;
+    } else if(schema[@"oneOf"]){
+        NSArray *oneOfArr = schema[@"oneOf"];
+        NSMutableArray *errors = [NSMutableArray array];
+
+        NSMutableArray *matches = [NSMutableArray array];
+        NSMutableArray *validationErrors = [NSMutableArray array];
         
-        if(schema[@"allOf"]){
-            NSArray *allOfArr = schema[@"allOf"];
-            NSArray *errs = [self validateObject:value withSet:allOfArr atPath:path pathPrefix:@"allOf" definitions:definitions];
-            if(errs.count != 0){
-                [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ does not match \"allOf\"", path]]];
-                for(NSArray *e in errs){
-                    [errors addObjectsFromArray:e];
-                }
+        for(NSInteger i = 0; i < oneOfArr.count; i++){
+            NSString *newPath = [NSString stringWithFormat:@"%@@oneOf[%i]", path, i];
+            NSArray *error = [self validate:value atPath:newPath schema:oneOfArr[i] definitions:definitions];
+            if(error.count == 0){
+                [matches addObject:@(i)];
+            } else {
+                [validationErrors addObject:error];
             }
         }
         
-        if(schema[@"anyOf"]){
-            NSArray *anyOfArr = schema[@"anyOf"];
-            NSArray *errs = [self validateObject:value withSet:anyOfArr atPath:path pathPrefix:@"anyOf" definitions:definitions];
-            if(errs.count == anyOfArr.count){
-                [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ does not match \"anyOf\"", path]]];
-                for(NSArray *e in errs){
-                    [errors addObjectsFromArray:e];
-                }
+        if(matches.count != 1){
+            NSString *matchesStr = matches.count > 0 ? [NSString stringWithFormat:@", matches [%@]", [matches componentsJoinedByString:@","]] : @"";
+            [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ does not match \"oneOf\"%@", path, matchesStr]]];
+            for(NSArray *e in validationErrors){
+                [errors addObjectsFromArray:e];
             }
         }
-        
-        if(schema[@"oneOf"]){
-            NSArray *oneOfArr = schema[@"oneOf"];
-            NSMutableArray *matches = [NSMutableArray array];
-            NSMutableArray *errs = [NSMutableArray array];
-            
-            for(NSInteger i = 0; i < oneOfArr.count; i++){
-                NSString *newPath = [NSString stringWithFormat:@"%@@oneOf[%i]", path, i];
-                NSArray *error = [self validate:value atPath:newPath schema:oneOfArr[i] definitions:definitions];
-                if(error.count == 0){
-                    [matches addObject:@(i)];
-                } else {
-                    [errs addObject:error];
-                }
-            }
-            
-            if(matches.count != 1){
-                NSString *matchesStr = matches.count > 0 ? [NSString stringWithFormat:@", matches [%@]", [matches componentsJoinedByString:@","]] : @"";
-                [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ does not match \"oneOf\"%@", path, matchesStr]]];
-                for(NSArray *e in errs){
-                    [errors addObjectsFromArray:e];
-                }
-            }
-        }
-        
         return errors;
     } else if(schema[@"$ref"]) {
         NSString *ref = schema[@"$ref"];
+        NSMutableArray *errors = [NSMutableArray array];
 
         //This is not complete, as resolution is more complex
         NSString *entry;
@@ -187,18 +236,30 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
             entry = [ref stringByReplacingOccurrencesOfString:@"bundle://" withString:@""];
             entry = [entry stringByReplacingOccurrencesOfString:@".json" withString:@""];
             
-            NSError *error;
-            NSDictionary *schema = [self loadSchemaFromPath:entry error:error];
-            if(error){
-                return @[error];
+            TFJSONSchemaWrapper *wrapper = [self loadSchemaFromPath:entry];
+            
+            if(wrapper->error){
+                return @[wrapper->error];
             }
             
-            definitions[ref] = schema;
+            definitions[ref] = wrapper->schema;
             entry = ref;
         }
-        return [self validate:value atPath:path schema:definitions[entry] definitions:definitions];
+        [errors addObjectsFromArray:[self validate:value atPath:path schema:definitions[entry] definitions:definitions]];
+        return errors;
+    } else if(schema[@"enum"]){
+        NSArray *enums = schema[@"enum"];
+        NSMutableArray *errors = [NSMutableArray array];
+
+        NSSet *enumsSet = [NSSet setWithArray:enums];
+        if(enums.count > enumsSet.count){
+            [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ is an enum and is not unique [%@]", path, [enums componentsJoinedByString:@","]]]];
+        } else if(![enums containsObject:value]){
+            [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ (%@) is not a valid enum-item [%@]", path, value, [enums componentsJoinedByString:@","]]]];
+        }
+        return errors;
     } else {
-        return @[[self errorWithMessage:[NSString stringWithFormat:@"Schema is missing type or $ref for path %@", path]]];
+        return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ must have a [%@] property", path, [schemaTypes componentsJoinedByString:@","]]]];
     }
 }
 

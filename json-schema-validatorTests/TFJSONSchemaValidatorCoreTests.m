@@ -8,8 +8,14 @@
 
 #import <XCTest/XCTest.h>
 #import "TFJSONSchemaValidator.h"
-@interface TFJSONSchemaValidatorCoreTests : XCTestCase
+#import "TFJSONSchemaValidatorAbstractTests.h"
 
+@interface TFJSONSchemaValidatorCoreTests : TFJSONSchemaValidatorAbstractTests
+
+@end
+
+@interface TFJSONSchemaValidator (private)
+- (NSError *)validate:(NSDictionary *)jsonObject withSchema:(NSDictionary *)schema;
 @end
 
 @implementation TFJSONSchemaValidatorCoreTests
@@ -44,5 +50,9 @@
     NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
     XCTAssertNil(error, @"Empty schema is always valid");
 }
-
+- (void)testInvalidSchemaFail
+{
+    BOOL status = [self assertFailWithSchema:@"TFJSONSchemaValidatorCoreInvalidSchema" data:@"TFJSONSchemaValidatorCoreInvalidSchemaData"];
+    XCTAssert(status);
+}
 @end

@@ -2,15 +2,12 @@
     "type" : "object",
     "properties" : {
         "testAllOf" : {
-            "type" : "number",
             "allOf" : [{"type" : "number", "minimum" : 1}, {"type" : "number", "minimum" : 3}]
         },
         "testAnyOf" : {
-            "type" : "number",
             "anyOf" : [{"type" : "number", "minimum" : 1}, {"type" : "number", "minimum" : 3}]
         },
         "testOneOf" : {
-            "type" : "number",
             "oneOf" : [{"type" : "number", "minimum" : 1}, {"type" : "number", "minimum" : 3}]
         }
     }

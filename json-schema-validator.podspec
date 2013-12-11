@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/krpiatkowski/json-schema-validator.git", :tag => "0.0.1" }
 
   s.source_files  = 'json-schema-validator/Classes/**/*.{h,m}'
-  s.resources     = 'json-schema-validator/Resources/**/*.{json}'
+  s.ios.resource_bundle = { 'Schema' => 'json-schema-validator/Resources/*.json' }
 
   s.requires_arc = true
 end
