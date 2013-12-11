@@ -47,23 +47,27 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     self = [super init];
     if (self) {
         _bundle = bundle;
-    }
+
+        NSString *path = [_bundle pathForResource:@"validator_schema" ofType:@"json"];
+        if(!path){
+            NSAssert(NO, @"We should always be able to find the validator_schema!");
+        }
+
+        NSError *error;
+        _validatorSchema = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:path] options:0 error:&error];
+        if(error){
+            NSAssert(NO, @"Validator_schema should be valid!");            
+        }
+}
     return self;
 }
 
 - (NSError *)validate:(NSDictionary *)jsonObject withSchemaPath:(NSString *)path
 {
-    TFJSONSchemaWrapper *s = [self loadSchemaFromPath:@"validator_schema"];
+     TFJSONSchemaWrapper *s = [self loadSchemaFromPath:path];
     if(s->error){
         return s->error;
-    }
-    _validatorSchema = s->schema;
-    
-    s = [self loadSchemaFromPath:path];
-    if(s->error){
-        return s->error;
-    }
-    
+    }    
     return [self validate:jsonObject withSchema:s->schema];
 }
 
@@ -78,12 +82,10 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         return wrapper;
     }
     
-    if(![path isEqualToString:@"validator_schema"]){
-        error = [self validate:schema withSchema:_validatorSchema];
-        if(error){
-            wrapper->error = error;
-            return wrapper;
-        }
+    error = [self validate:schema withSchema:_validatorSchema];
+    if(error){
+        wrapper->error = error;
+        return wrapper;
     }
     
     wrapper->schema = schema;
@@ -117,7 +119,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     for(NSString *type in schemaTypes){
         if(schema[type]){
             if(found){
-                return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ must only have of of the following properties [%@]", path, [schemaTypes componentsJoinedByString:@","]]]];
+                return @[[self errorWithMessage:[NSString stringWithFormat:@"schema-error:%@ must only have of of the following properties [%@]", path, [schemaTypes componentsJoinedByString:@","]]]];
             }
             found = YES;
         }
@@ -228,15 +230,15 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
             entry = [ref stringByReplacingOccurrencesOfString:@"#/definitions/" withString:@""];
         } else if([ref hasPrefix:@"#"]){
             entry = @"#";
-        } else if([ref hasPrefix:@"bundle://"]){
+        } else if([ref hasPrefix:@"bundle://"] && !definitions[ref]){
             if(!_bundle){
                 return @[[self errorWithMessage:@"Bundle not set, bundle:// not supported when schema from dictionary"]];
             }
             
-            entry = [ref stringByReplacingOccurrencesOfString:@"bundle://" withString:@""];
-            entry = [entry stringByReplacingOccurrencesOfString:@".json" withString:@""];
+            NSString *bundlePath = [ref stringByReplacingOccurrencesOfString:@"bundle://" withString:@""];
+            bundlePath = [bundlePath stringByReplacingOccurrencesOfString:@".json" withString:@""];
             
-            TFJSONSchemaWrapper *wrapper = [self loadSchemaFromPath:entry];
+            TFJSONSchemaWrapper *wrapper = [self loadSchemaFromPath:bundlePath];
             
             if(wrapper->error){
                 return @[wrapper->error];
@@ -245,7 +247,14 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
             definitions[ref] = wrapper->schema;
             entry = ref;
         }
-        [errors addObjectsFromArray:[self validate:value atPath:path schema:definitions[entry] definitions:definitions]];
+        
+        NSDictionary *schema = definitions[entry];
+        if(!schema){
+            [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"schema-error:%@ has a invalid reference %@",path, ref]]];
+        } else {
+            NSString *newPath = [NSString stringWithFormat:@"%@%@{%@}", path, kJSONSchemaValidationPathDelimiter, ref];
+            [errors addObjectsFromArray:[self validate:value atPath:newPath schema:schema definitions:schema[@"definitions"]]];
+        }
         return errors;
     } else if(schema[@"enum"]){
         NSArray *enums = schema[@"enum"];
@@ -259,7 +268,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         }
         return errors;
     } else {
-        return @[[self errorWithMessage:[NSString stringWithFormat:@"%@ must have a [%@] property", path, [schemaTypes componentsJoinedByString:@","]]]];
+        return @[[self errorWithMessage:[NSString stringWithFormat:@"schema-error:%@ must have a [%@] property", path, [schemaTypes componentsJoinedByString:@","]]]];
     }
 }
 
