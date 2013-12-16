@@ -50,13 +50,13 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
         NSString *path = [_bundle pathForResource:@"validator_schema" ofType:@"json"];
         if(!path){
-            NSAssert(NO, @"We should always be able to find the validator_schema!");
+            [[NSException exceptionWithName:@"Validator scheme missing" reason:@"We should always be able to find the validator_schema.json!" userInfo:nil] raise];
         }
 
         NSError *error;
         _validatorSchema = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:path] options:0 error:&error];
         if(error){
-            NSAssert(NO, @"Validator_schema should be valid!");            
+            [[NSException exceptionWithName:@"Validator scheme invalid" reason:@"Validator_schema should be valid!" userInfo:@{@"error" : error}] raise];
         }
 }
     return self;
@@ -106,7 +106,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     NSArray *errors = [self validate:jsonObject atPath:@"#" schema:schema definitions:definitions];
     
     if(errors.count > 0){
-        return [NSError errorWithDomain:kJSONSchemaValidationDomain code:1 userInfo:@{@"message" : @"Validation failed", @"errors" : errors}];
+        return [NSError errorWithDomain:kJSONSchemaValidationDomain code:1 userInfo:@{NSLocalizedDescriptionKey : @"Validation failed", @"errors" : errors}];
     }
     return nil;
 }
@@ -516,7 +516,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
 - (NSError *)errorWithMessage:(NSString *)message
 {
-    return [NSError errorWithDomain:kJSONSchemaValidationDomain code:0 userInfo:@{@"message" : message}];
+    return [NSError errorWithDomain:kJSONSchemaValidationDomain code:0 userInfo:@{NSLocalizedDescriptionKey : message}];
 }
 
 - (NSString *)prettyPrintErrors:(NSError *)errors
@@ -529,7 +529,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         str = [errors description];
     } else {
         for(NSError *error in errors.userInfo[@"errors"]){
-            str = [NSString stringWithFormat:@"%@%@\n", str, error.userInfo[@"message"]];
+            str = [NSString stringWithFormat:@"%@%@\n", str, error.userInfo[NSLocalizedDescriptionKey]];
         }
     }
     return str;
