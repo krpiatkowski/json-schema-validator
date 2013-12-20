@@ -20,39 +20,35 @@
 
 @implementation TFJSONSchemaValidatorCoreTests
 
-- (void)setUp
+- (NSString *)schema
 {
-    [super setUp];
+    return @"TFJSONSchemaValidatorCoreTests";
 }
 
-- (void)tearDown
+- (void)testWrongSchema
 {
-    [super tearDown];
-}
-
-- (void)testNilSchema
-{
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{} withSchema:nil];
-    
-    XCTAssertNotNil(error, @"Schema must not be nil");
+    NSError *error = [[TFJSONSchemaValidator validator] validate:@{} withSchema:@"Wrong"];
+    XCTAssertNotNil(error, @"Schema exist");
 }
 
 - (void)testEmptyJSONPass
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{} withSchema:@{@"type" : @"object"}];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"Empty json is always valid");
+    [self assertOk:@{}];
 }
 
 - (void)testMinimumSchemaPass
 {
-    NSError *error = [[TFJSONSchemaValidator validator] validate:@{@"test" : @(1)} withSchema:@{@"type" : @"object"}];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
-    XCTAssertNil(error, @"Empty schema is always valid");
+    [self assertOk:@{@"test" : @(1)}];
 }
+
 - (void)testInvalidSchemaFail
 {
     BOOL status = [self assertFailWithSchema:@"TFJSONSchemaValidatorCoreInvalidSchema" data:@"TFJSONSchemaValidatorCoreInvalidSchemaData"];
     XCTAssert(status);
+}
+
+- (void)testLoadFromBundle
+{
+    [[[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle bundleForClass:[self class]]] loadSchemas];
 }
 @end

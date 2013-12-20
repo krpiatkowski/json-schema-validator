@@ -10,18 +10,18 @@
 		CB37573618586D5500DCCC79 /* validator_schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CB37573518586D5500DCCC79 /* validator_schema.json */; };
 		CB37573718586D5500DCCC79 /* validator_schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CB37573518586D5500DCCC79 /* validator_schema.json */; };
 		CB5B7B2E184F6F370012684D /* TFJSONSchemaValidatorObjectTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB5B7B2D184F6F370012684D /* TFJSONSchemaValidatorObjectTests.m */; };
-		CB5B7B33184F71EC0012684D /* TFJSONSchemaValidatorStringTests.json in Resources */ = {isa = PBXBuildFile; fileRef = CB5B7B32184F71EC0012684D /* TFJSONSchemaValidatorStringTests.json */; };
-		CB5B7B35184F740C0012684D /* TFJSONSchemaValidatorObjectTests.json in Resources */ = {isa = PBXBuildFile; fileRef = CB5B7B34184F740C0012684D /* TFJSONSchemaValidatorObjectTests.json */; };
+		CB5B7B33184F71EC0012684D /* TFJSONSchemaValidatorStringTests.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CB5B7B32184F71EC0012684D /* TFJSONSchemaValidatorStringTests.schema.json */; };
+		CB5B7B35184F740C0012684D /* TFJSONSchemaValidatorObjectTests.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CB5B7B34184F740C0012684D /* TFJSONSchemaValidatorObjectTests.schema.json */; };
 		CB5B7B37184F7A590012684D /* TFJSONSchemaValidatorNumbericTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB5B7B36184F7A590012684D /* TFJSONSchemaValidatorNumbericTests.m */; };
-		CB5B7B39184F7AAB0012684D /* TFJSONSchemaValidatorNumberTests.json in Resources */ = {isa = PBXBuildFile; fileRef = CB5B7B38184F7AAB0012684D /* TFJSONSchemaValidatorNumberTests.json */; };
+		CB5B7B39184F7AAB0012684D /* TFJSONSchemaValidatorNumberTests.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CB5B7B38184F7AAB0012684D /* TFJSONSchemaValidatorNumberTests.schema.json */; };
 		CB80BE5518584775005562A8 /* TFJSONSchemaValidatorSetsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB80BE5418584775005562A8 /* TFJSONSchemaValidatorSetsTests.m */; };
-		CB80BE57185847C8005562A8 /* TFJSONSchemaValidatorSetsTests.json in Resources */ = {isa = PBXBuildFile; fileRef = CB80BE56185847C8005562A8 /* TFJSONSchemaValidatorSetsTests.json */; };
-		CBA089761855D38B00FF9DC4 /* TFJSONSchemaValidatorDefinitionsBundleTests.json in Resources */ = {isa = PBXBuildFile; fileRef = CBA089751855D38B00FF9DC4 /* TFJSONSchemaValidatorDefinitionsBundleTests.json */; };
-		CBBECE61185878990099C65F /* TFJSONSchemaValidatorCoreInvalidSchema.json in Resources */ = {isa = PBXBuildFile; fileRef = CBBECE60185878990099C65F /* TFJSONSchemaValidatorCoreInvalidSchema.json */; };
+		CB80BE57185847C8005562A8 /* TFJSONSchemaValidatorSetsTests.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CB80BE56185847C8005562A8 /* TFJSONSchemaValidatorSetsTests.schema.json */; };
+		CBA089761855D38B00FF9DC4 /* TFJSONSchemaValidatorDefinitionsBundleTests.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CBA089751855D38B00FF9DC4 /* TFJSONSchemaValidatorDefinitionsBundleTests.schema.json */; };
+		CBBECE61185878990099C65F /* TFJSONSchemaValidatorCoreInvalidSchema.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CBBECE60185878990099C65F /* TFJSONSchemaValidatorCoreInvalidSchema.schema.json */; };
 		CBBECE6318587AFD0099C65F /* TFJSONSchemaValidatorCoreInvalidSchemaData.json in Resources */ = {isa = PBXBuildFile; fileRef = CBBECE6218587AFD0099C65F /* TFJSONSchemaValidatorCoreInvalidSchemaData.json */; };
 		CBC01BE61857298A009DB9A3 /* TFJSONSchemaValidatorUseCaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC01BE51857298A009DB9A3 /* TFJSONSchemaValidatorUseCaseTests.m */; };
-		CBC01BE8185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.json in Resources */ = {isa = PBXBuildFile; fileRef = CBC01BE7185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.json */; };
-		CBC01BEA18572ABD009DB9A3 /* testDefinitionsWithTypesFailData.json in Resources */ = {isa = PBXBuildFile; fileRef = CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.json */; };
+		CBC01BE8185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CBC01BE7185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.schema.json */; };
+		CBC01BEA18572ABD009DB9A3 /* testDefinitionsWithTypesFailData.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.schema.json */; };
 		CBC15EA2184F349D00638B84 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBC15EA1184F349D00638B84 /* Foundation.framework */; };
 		CBC15EA4184F349D00638B84 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBC15EA3184F349D00638B84 /* CoreGraphics.framework */; };
 		CBC15EA6184F349D00638B84 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBC15EA5184F349D00638B84 /* UIKit.framework */; };
@@ -38,10 +38,11 @@
 		CBC15ED9184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC15ED8184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m */; };
 		CBC15EDB184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC15EDA184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m */; };
 		CBCB191D1851D6EB00F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBCB191C1851D6EB00F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.m */; };
-		CBCB191F1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.json in Resources */ = {isa = PBXBuildFile; fileRef = CBCB191E1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.json */; };
+		CBCB191F1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CBCB191E1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.schema.json */; };
 		CBCB19211851EDD400F6BB6D /* TFJSONSchemaValidatorAbstractTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBCB19201851EDD400F6BB6D /* TFJSONSchemaValidatorAbstractTests.m */; };
+		CBE4E7EC1864398D00AE3B8E /* TFJSONSchemaValidatorCoreTests.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CBE4E7EB1864398D00AE3B8E /* TFJSONSchemaValidatorCoreTests.schema.json */; };
 		CBFAB3B2185061CD00E5AD12 /* TFJSONSchemaValidatorArrayTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBFAB3B1185061CD00E5AD12 /* TFJSONSchemaValidatorArrayTests.m */; };
-		CBFAB3B41850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.json in Resources */ = {isa = PBXBuildFile; fileRef = CBFAB3B31850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.json */; };
+		CBFAB3B41850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CBFAB3B31850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.schema.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,18 +58,18 @@
 /* Begin PBXFileReference section */
 		CB37573518586D5500DCCC79 /* validator_schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = validator_schema.json; sourceTree = "<group>"; };
 		CB5B7B2D184F6F370012684D /* TFJSONSchemaValidatorObjectTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorObjectTests.m; sourceTree = "<group>"; };
-		CB5B7B32184F71EC0012684D /* TFJSONSchemaValidatorStringTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorStringTests.json; sourceTree = "<group>"; };
-		CB5B7B34184F740C0012684D /* TFJSONSchemaValidatorObjectTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorObjectTests.json; sourceTree = "<group>"; };
+		CB5B7B32184F71EC0012684D /* TFJSONSchemaValidatorStringTests.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorStringTests.schema.json; sourceTree = "<group>"; };
+		CB5B7B34184F740C0012684D /* TFJSONSchemaValidatorObjectTests.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorObjectTests.schema.json; sourceTree = "<group>"; };
 		CB5B7B36184F7A590012684D /* TFJSONSchemaValidatorNumbericTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorNumbericTests.m; sourceTree = "<group>"; };
-		CB5B7B38184F7AAB0012684D /* TFJSONSchemaValidatorNumberTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorNumberTests.json; sourceTree = "<group>"; };
+		CB5B7B38184F7AAB0012684D /* TFJSONSchemaValidatorNumberTests.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorNumberTests.schema.json; sourceTree = "<group>"; };
 		CB80BE5418584775005562A8 /* TFJSONSchemaValidatorSetsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorSetsTests.m; sourceTree = "<group>"; };
-		CB80BE56185847C8005562A8 /* TFJSONSchemaValidatorSetsTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorSetsTests.json; sourceTree = "<group>"; };
-		CBA089751855D38B00FF9DC4 /* TFJSONSchemaValidatorDefinitionsBundleTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorDefinitionsBundleTests.json; sourceTree = "<group>"; };
-		CBBECE60185878990099C65F /* TFJSONSchemaValidatorCoreInvalidSchema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorCoreInvalidSchema.json; sourceTree = "<group>"; };
+		CB80BE56185847C8005562A8 /* TFJSONSchemaValidatorSetsTests.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorSetsTests.schema.json; sourceTree = "<group>"; };
+		CBA089751855D38B00FF9DC4 /* TFJSONSchemaValidatorDefinitionsBundleTests.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorDefinitionsBundleTests.schema.json; sourceTree = "<group>"; };
+		CBBECE60185878990099C65F /* TFJSONSchemaValidatorCoreInvalidSchema.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorCoreInvalidSchema.schema.json; sourceTree = "<group>"; };
 		CBBECE6218587AFD0099C65F /* TFJSONSchemaValidatorCoreInvalidSchemaData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorCoreInvalidSchemaData.json; sourceTree = "<group>"; };
 		CBC01BE51857298A009DB9A3 /* TFJSONSchemaValidatorUseCaseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorUseCaseTests.m; sourceTree = "<group>"; };
-		CBC01BE7185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testDefinitionsWithTypesFailSchema.json; sourceTree = "<group>"; };
-		CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testDefinitionsWithTypesFailData.json; sourceTree = "<group>"; };
+		CBC01BE7185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testDefinitionsWithTypesFailSchema.schema.json; sourceTree = "<group>"; };
+		CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testDefinitionsWithTypesFailData.schema.json; sourceTree = "<group>"; };
 		CBC15E9E184F349D00638B84 /* json-schema-validator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "json-schema-validator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBC15EA1184F349D00638B84 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		CBC15EA3184F349D00638B84 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -89,11 +90,12 @@
 		CBC15ED8184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorCoreTests.m; sourceTree = "<group>"; };
 		CBC15EDA184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorStringTests.m; sourceTree = "<group>"; };
 		CBCB191C1851D6EB00F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorDefinitionsTests.m; sourceTree = "<group>"; };
-		CBCB191E1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorDefinitionsTests.json; sourceTree = "<group>"; };
+		CBCB191E1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorDefinitionsTests.schema.json; sourceTree = "<group>"; };
 		CBCB19201851EDD400F6BB6D /* TFJSONSchemaValidatorAbstractTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorAbstractTests.m; sourceTree = "<group>"; };
 		CBCB19221851EF4000F6BB6D /* TFJSONSchemaValidatorAbstractTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TFJSONSchemaValidatorAbstractTests.h; sourceTree = "<group>"; };
+		CBE4E7EB1864398D00AE3B8E /* TFJSONSchemaValidatorCoreTests.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorCoreTests.schema.json; sourceTree = "<group>"; };
 		CBFAB3B1185061CD00E5AD12 /* TFJSONSchemaValidatorArrayTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorArrayTests.m; sourceTree = "<group>"; };
-		CBFAB3B31850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorArrayTests.json; sourceTree = "<group>"; };
+		CBFAB3B31850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorArrayTests.schema.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -188,25 +190,26 @@
 				CBC15EC1184F349D00638B84 /* Supporting Files */,
 				CBCB19221851EF4000F6BB6D /* TFJSONSchemaValidatorAbstractTests.h */,
 				CBCB19201851EDD400F6BB6D /* TFJSONSchemaValidatorAbstractTests.m */,
-				CBFAB3B31850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.json */,
+				CBFAB3B31850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.schema.json */,
 				CBFAB3B1185061CD00E5AD12 /* TFJSONSchemaValidatorArrayTests.m */,
 				CBC15ED8184F4AF300638B84 /* TFJSONSchemaValidatorCoreTests.m */,
-				CBBECE60185878990099C65F /* TFJSONSchemaValidatorCoreInvalidSchema.json */,
+				CBE4E7EB1864398D00AE3B8E /* TFJSONSchemaValidatorCoreTests.schema.json */,
+				CBBECE60185878990099C65F /* TFJSONSchemaValidatorCoreInvalidSchema.schema.json */,
 				CBBECE6218587AFD0099C65F /* TFJSONSchemaValidatorCoreInvalidSchemaData.json */,
 				CBCB191C1851D6EB00F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.m */,
-				CBA089751855D38B00FF9DC4 /* TFJSONSchemaValidatorDefinitionsBundleTests.json */,
-				CBCB191E1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.json */,
+				CBA089751855D38B00FF9DC4 /* TFJSONSchemaValidatorDefinitionsBundleTests.schema.json */,
+				CBCB191E1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.schema.json */,
 				CB5B7B36184F7A590012684D /* TFJSONSchemaValidatorNumbericTests.m */,
-				CB5B7B38184F7AAB0012684D /* TFJSONSchemaValidatorNumberTests.json */,
-				CB5B7B34184F740C0012684D /* TFJSONSchemaValidatorObjectTests.json */,
+				CB5B7B38184F7AAB0012684D /* TFJSONSchemaValidatorNumberTests.schema.json */,
+				CB5B7B34184F740C0012684D /* TFJSONSchemaValidatorObjectTests.schema.json */,
 				CB5B7B2D184F6F370012684D /* TFJSONSchemaValidatorObjectTests.m */,
 				CB80BE5418584775005562A8 /* TFJSONSchemaValidatorSetsTests.m */,
-				CB80BE56185847C8005562A8 /* TFJSONSchemaValidatorSetsTests.json */,
+				CB80BE56185847C8005562A8 /* TFJSONSchemaValidatorSetsTests.schema.json */,
 				CBC15EDA184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m */,
-				CB5B7B32184F71EC0012684D /* TFJSONSchemaValidatorStringTests.json */,
+				CB5B7B32184F71EC0012684D /* TFJSONSchemaValidatorStringTests.schema.json */,
 				CBC01BE51857298A009DB9A3 /* TFJSONSchemaValidatorUseCaseTests.m */,
-				CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.json */,
-				CBC01BE7185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.json */,
+				CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.schema.json */,
+				CBC01BE7185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.schema.json */,
 			);
 			path = "json-schema-validatorTests";
 			sourceTree = "<group>";
@@ -315,19 +318,20 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CBA089761855D38B00FF9DC4 /* TFJSONSchemaValidatorDefinitionsBundleTests.json in Resources */,
-				CBFAB3B41850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.json in Resources */,
+				CBA089761855D38B00FF9DC4 /* TFJSONSchemaValidatorDefinitionsBundleTests.schema.json in Resources */,
+				CBFAB3B41850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.schema.json in Resources */,
 				CBBECE6318587AFD0099C65F /* TFJSONSchemaValidatorCoreInvalidSchemaData.json in Resources */,
-				CBC01BEA18572ABD009DB9A3 /* testDefinitionsWithTypesFailData.json in Resources */,
-				CB5B7B39184F7AAB0012684D /* TFJSONSchemaValidatorNumberTests.json in Resources */,
-				CB80BE57185847C8005562A8 /* TFJSONSchemaValidatorSetsTests.json in Resources */,
-				CBCB191F1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.json in Resources */,
+				CBC01BEA18572ABD009DB9A3 /* testDefinitionsWithTypesFailData.schema.json in Resources */,
+				CB5B7B39184F7AAB0012684D /* TFJSONSchemaValidatorNumberTests.schema.json in Resources */,
+				CB80BE57185847C8005562A8 /* TFJSONSchemaValidatorSetsTests.schema.json in Resources */,
+				CBCB191F1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.schema.json in Resources */,
 				CB37573718586D5500DCCC79 /* validator_schema.json in Resources */,
-				CB5B7B35184F740C0012684D /* TFJSONSchemaValidatorObjectTests.json in Resources */,
-				CBC01BE8185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.json in Resources */,
-				CB5B7B33184F71EC0012684D /* TFJSONSchemaValidatorStringTests.json in Resources */,
+				CB5B7B35184F740C0012684D /* TFJSONSchemaValidatorObjectTests.schema.json in Resources */,
+				CBC01BE8185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.schema.json in Resources */,
+				CBE4E7EC1864398D00AE3B8E /* TFJSONSchemaValidatorCoreTests.schema.json in Resources */,
+				CB5B7B33184F71EC0012684D /* TFJSONSchemaValidatorStringTests.schema.json in Resources */,
 				CBC15EC5184F349D00638B84 /* InfoPlist.strings in Resources */,
-				CBBECE61185878990099C65F /* TFJSONSchemaValidatorCoreInvalidSchema.json in Resources */,
+				CBBECE61185878990099C65F /* TFJSONSchemaValidatorCoreInvalidSchema.schema.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

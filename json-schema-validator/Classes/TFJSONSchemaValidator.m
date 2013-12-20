@@ -35,6 +35,8 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 @implementation TFJSONSchemaValidator{
     NSBundle *_bundle;
     NSDictionary *_validatorSchema;
+    BOOL _loaded;
+    NSMutableDictionary *_schemas;
 }
 
 + (TFJSONSchemaValidator *)validator
@@ -47,6 +49,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     self = [super init];
     if (self) {
         _bundle = bundle;
+        _schemas = [NSMutableDictionary new];
 
         NSString *path = [_bundle pathForResource:@"validator_schema" ofType:@"json"];
         if(!path){
@@ -58,31 +61,58 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         if(error){
             [[NSException exceptionWithName:@"Validator scheme invalid" reason:@"Validator_schema should be valid!" userInfo:@{@"error" : error}] raise];
         }
-}
+    }
     return self;
 }
 
-- (NSError *)validate:(NSDictionary *)jsonObject withSchemaPath:(NSString *)path
+
+- (NSInteger)loadSchemas
 {
-     TFJSONSchemaWrapper *s = [self loadSchemaFromPath:path];
-    if(s->error){
-        return s->error;
-    }    
-    return [self validate:jsonObject withSchema:s->schema];
+    if(_loaded) return _schemas.count;
+    NSArray *schemaPaths = [_bundle pathsForResourcesOfType:@"schema.json" inDirectory:@""];
+
+    for(NSString *schemaPath in schemaPaths){
+        NSString *schemaName = [[schemaPath componentsSeparatedByString:@"/"] lastObject];
+        schemaName = [[schemaName componentsSeparatedByString:@".schema.json"] firstObject];
+        
+        TFJSONSchemaWrapper *wrapper = [self loadSchemaFromPath:schemaPath];
+        if(wrapper->error){
+            NSLog(@"Failed to load schema:%@\n%@", schemaName, wrapper->error.userInfo[NSLocalizedDescriptionKey]);
+        } else {
+            NSError *error = [self validate:wrapper->schema withSchemaObject:_validatorSchema];
+            if(error){
+                NSLog(@"Failed to validate schema:%@", schemaName);
+                for(NSError *err in error.userInfo[@"errors"]){
+                    NSLog(@"%@", err.userInfo[NSLocalizedDescriptionKey]);
+                }
+            } else {
+                _schemas[schemaName] = wrapper->schema;
+                NSLog(@"Loaded schema:%@", schemaName);
+            }
+        }
+    }
+    
+    _loaded = YES;
+    return _schemas.count;
+}
+
+
+- (NSError *)validate:(NSDictionary *)jsonObject withSchema:(NSString *)name
+{
+    if(_schemas[name]){
+        return [self validate:jsonObject withSchemaObject:_schemas[name]];
+    } else {
+        return [self errorWithMessage:[NSString stringWithFormat:@"Invalid schema name:%@", name]];
+    }
 }
 
 - (TFJSONSchemaWrapper *)loadSchemaFromPath:(NSString *)path
 {
-    NSError *error;
-    NSString *realPath = [_bundle pathForResource:path ofType:@"json"];
-    NSDictionary *schema = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:realPath] options:0 error:&error];
     TFJSONSchemaWrapper *wrapper = [TFJSONSchemaWrapper new];
-    if(error){
-        wrapper->error = error;
-        return wrapper;
-    }
-    
-    error = [self validate:schema withSchema:_validatorSchema];
+    NSError *error;
+    NSData *data = [NSData dataWithContentsOfFile:path];
+    NSDictionary *schema = [NSJSONSerialization JSONObjectWithData:data options:0 error:&error];
+
     if(error){
         wrapper->error = error;
         return wrapper;
@@ -92,7 +122,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     return wrapper;
 }
 
-- (NSError *)validate:(NSDictionary *)jsonObject withSchema:(NSDictionary *)schema
+- (NSError *)validate:(NSDictionary *)jsonObject withSchemaObject:(NSDictionary *)schema
 {
     if(!jsonObject) return [self errorWithMessage:@"Must supply a dictonary to validate"];
     if(!schema) return [self errorWithMessage:@"Must supply a schema"];
@@ -114,6 +144,11 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
 - (NSArray *)validate:(NSObject *)value atPath:(NSString *)path schema:(NSDictionary *)schema definitions:(NSMutableDictionary *)definitions
 {
+    
+    if(![schema isKindOfClass:[NSDictionary class]]){
+        return @[[self errorWithMessage:[NSString stringWithFormat:@"schema-error:%@ must be a schema", path]]];
+    }
+    
     NSArray *schemaTypes = @[@"type", @"allOf", @"anyOf", @"oneOf", @"$ref", @"enum"];
     BOOL found = NO;
     for(NSString *type in schemaTypes){
@@ -224,31 +259,20 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         NSString *ref = schema[@"$ref"];
         NSMutableArray *errors = [NSMutableArray array];
 
+        
         //This is not complete, as resolution is more complex
-        NSString *entry;
+        NSDictionary *schema;
         if([ref hasPrefix:@"#/definitions/"]){
-            entry = [ref stringByReplacingOccurrencesOfString:@"#/definitions/" withString:@""];
+           NSString *entry = [ref stringByReplacingOccurrencesOfString:@"#/definitions/" withString:@""];
+            schema = definitions[entry];
         } else if([ref hasPrefix:@"#"]){
-            entry = @"#";
+           NSString *entry = @"#";
+            schema = definitions[entry];
         } else if([ref hasPrefix:@"bundle://"] && !definitions[ref]){
-            if(!_bundle){
-                return @[[self errorWithMessage:@"Bundle not set, bundle:// not supported when schema from dictionary"]];
-            }
-            
             NSString *bundlePath = [ref stringByReplacingOccurrencesOfString:@"bundle://" withString:@""];
-            bundlePath = [bundlePath stringByReplacingOccurrencesOfString:@".json" withString:@""];
-            
-            TFJSONSchemaWrapper *wrapper = [self loadSchemaFromPath:bundlePath];
-            
-            if(wrapper->error){
-                return @[wrapper->error];
-            }
-            
-            definitions[ref] = wrapper->schema;
-            entry = ref;
+            schema = _schemas[bundlePath];
         }
         
-        NSDictionary *schema = definitions[entry];
         if(!schema){
             [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"schema-error:%@ has a invalid reference %@",path, ref]]];
         } else {
@@ -517,21 +541,5 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 - (NSError *)errorWithMessage:(NSString *)message
 {
     return [NSError errorWithDomain:kJSONSchemaValidationDomain code:0 userInfo:@{NSLocalizedDescriptionKey : message}];
-}
-
-- (NSString *)prettyPrintErrors:(NSError *)errors
-{
-    if(!errors){
-        return @"";
-    }
-    NSString *str = @"";
-    if(!errors.userInfo[@"errors"]){
-        str = [errors description];
-    } else {
-        for(NSError *error in errors.userInfo[@"errors"]){
-            str = [NSString stringWithFormat:@"%@%@\n", str, error.userInfo[NSLocalizedDescriptionKey]];
-        }
-    }
-    return str;
 }
 @end

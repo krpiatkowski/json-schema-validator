@@ -9,23 +9,35 @@
 #import "TFJSONSchemaValidatorAbstractTests.h"
 #import "TFJSONSchemaValidator.h"
 
-@implementation TFJSONSchemaValidatorAbstractTests
+@implementation TFJSONSchemaValidatorAbstractTests{
+}
 - (NSString *)schema
 {
     NSAssert(NO, @"Override in subclass");
     return @"";
 }
 
+static TFJSONSchemaValidator *_validator;
+
+- (void)setUp
+{
+    if(!_validator){
+        _validator = [[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle bundleForClass:[self class]]];
+        [_validator loadSchemas];
+    }
+}
+
+
 - (BOOL)assertOk:(NSDictionary *)json
 {
-    NSError *error = [[[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle bundleForClass:[self class]]] validate:json withSchemaPath:[self schema]];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
+    NSError *error = [_validator validate:json withSchema:[self schema]];
+    NSLog(@"%@", [self prettyPrintErrors:error]);
     return !error;
 }
 
 - (BOOL)assertFail:(NSDictionary *)json
 {
-    NSError *error = [[[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle bundleForClass:[self class]]] validate:json withSchemaPath:[self schema]];
+    NSError *error = [_validator validate:json withSchema:[self schema]];
     if(error == nil){
         NSLog(@"Validation ok, should fail");
     }
@@ -37,8 +49,8 @@
     NSString *dataPath = [[NSBundle bundleForClass:[self class]] pathForResource:data ofType:@"json"];
     NSData *d = [NSData dataWithContentsOfFile:dataPath];
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:d options:0 error:nil];
-    NSError *error = [[[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle bundleForClass:[self class]]] validate:json withSchemaPath:schema];
-    NSLog(@"%@", [[TFJSONSchemaValidator validator] prettyPrintErrors:error]);
+    NSError *error = [_validator validate:json withSchema:schema];
+    NSLog(@"%@", [self prettyPrintErrors:error]);
     return !error;
 }
 
@@ -47,10 +59,27 @@
     NSString *dataPath = [[NSBundle bundleForClass:[self class]] pathForResource:data ofType:@"json"];
     NSData *d = [NSData dataWithContentsOfFile:dataPath];
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:d options:0 error:nil];
-    NSError *error = [[[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle bundleForClass:[self class]]] validate:json withSchemaPath:schema];
+    NSError *error = [_validator validate:json withSchema:schema];
     if(error == nil){
         NSLog(@"Validation ok, should fail");
     }
     return error != nil;
 }
+
+- (NSString *)prettyPrintErrors:(NSError *)errors
+{
+    if(!errors){
+        return @"";
+    }
+    NSString *str = @"";
+    if(!errors.userInfo[@"errors"]){
+        str = [errors description];
+    } else {
+        for(NSError *error in errors.userInfo[@"errors"]){
+            str = [NSString stringWithFormat:@"%@%@\n", str, error.userInfo[NSLocalizedDescriptionKey]];
+        }
+    }
+    return str;
+}
+
 @end

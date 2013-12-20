@@ -11,6 +11,8 @@
 @interface TFJSONSchemaValidator : NSObject
 + (TFJSONSchemaValidator *)validator;
 - (id)initWithBundle:(NSBundle *)bundle;
-- (NSError *)validate:(NSDictionary *)jsonObject withSchemaPath:(NSString *)path;
-- (NSString *)prettyPrintErrors:(NSError *)errors;
+
+- (NSInteger)loadSchemas;
+
+- (NSError *)validate:(NSDictionary *)jsonObject withSchema:(NSString *)schema;
 @end

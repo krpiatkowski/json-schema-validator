@@ -10,9 +10,9 @@
                         "\\d{4}-\\d{2}-\\d{2}" : {
                             "type" : "object",
                             "properties" : {
-                                "id": "string",
-                                "price1": "number",
-                                "price2": "number"
+                                "id": {"type" :"string"},
+                                "price1": {"type" :"number"},
+                                "price2": {"type" :"number"}
                             },
                             "required" : ["id","price1","price2"]
                         }
@@ -21,7 +21,7 @@
             }
         }
     },
-    "properties" {
+    "properties" : {
         "items": {"$ref" : "#/definitions/price"},        
     }
 }
