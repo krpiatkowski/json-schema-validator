@@ -41,7 +41,11 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
 + (TFJSONSchemaValidator *)validator
 {
-    return [[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle mainBundle]];
+    static TFJSONSchemaValidator *validator;
+    if(!validator){
+        validator = [[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle mainBundle]];
+    }
+    return validator;
 }
 
 - (id)initWithBundle:(NSBundle *)bundle
@@ -71,6 +75,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     if(_loaded) return _schemas.count;
     NSArray *schemaPaths = [_bundle pathsForResourcesOfType:@"schema.json" inDirectory:@""];
 
+    NSLog(@"Loading schemas in bundle");
     for(NSString *schemaPath in schemaPaths){
         NSString *schemaName = [[schemaPath componentsSeparatedByString:@"/"] lastObject];
         schemaName = [[schemaName componentsSeparatedByString:@".schema.json"] firstObject];
