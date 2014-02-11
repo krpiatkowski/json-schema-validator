@@ -23,7 +23,7 @@ static TFJSONSchemaValidator *_validator;
 {
     if(!_validator){
         _validator = [[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle bundleForClass:[self class]]];
-        [_validator loadSchemas];
+        [_validator loadSchemas:YES];
     }
 }
 
@@ -48,22 +48,47 @@ static TFJSONSchemaValidator *_validator;
 {
     NSString *dataPath = [[NSBundle bundleForClass:[self class]] pathForResource:data ofType:@"json"];
     NSData *d = [NSData dataWithContentsOfFile:dataPath];
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:d options:0 error:nil];
-    NSError *error = [_validator validate:json withSchema:schema];
-    NSLog(@"%@", [self prettyPrintErrors:error]);
-    return !error;
+    
+    @try {
+        NSError *jsonError;
+        NSDictionary *json = [NSJSONSerialization JSONObjectWithData:d options:0 error:&jsonError];
+        if(jsonError){
+            NSLog(@"%@", jsonError);
+            return NO;
+        }
+        NSError *error = [_validator validate:json withSchema:schema];
+        NSLog(@"%@", [self prettyPrintErrors:error]);
+        return !error;
+    }
+    @catch (NSException *exception) {
+        NSLog(@"%@", exception);
+        return NO;
+    }
 }
 
 - (BOOL)assertFailWithSchema:(NSString *)schema data:(NSString *)data
 {
     NSString *dataPath = [[NSBundle bundleForClass:[self class]] pathForResource:data ofType:@"json"];
     NSData *d = [NSData dataWithContentsOfFile:dataPath];
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:d options:0 error:nil];
-    NSError *error = [_validator validate:json withSchema:schema];
-    if(error == nil){
-        NSLog(@"Validation ok, should fail");
+
+    @try {
+        NSError *jsonError;
+        NSDictionary *json = [NSJSONSerialization JSONObjectWithData:d options:0 error:&jsonError];
+        if(jsonError){
+            NSLog(@"%@", jsonError);
+            return NO;
+        }
+        
+        NSError *error = [_validator validate:json withSchema:schema];
+        if(error == nil){
+            NSLog(@"Validation ok, should fail");
+        }
+        return error != nil;
     }
-    return error != nil;
+    @catch (NSException *exception) {
+        NSLog(@"%@", exception);
+        return NO;
+    }
 }
 
 - (NSString *)prettyPrintErrors:(NSError *)errors

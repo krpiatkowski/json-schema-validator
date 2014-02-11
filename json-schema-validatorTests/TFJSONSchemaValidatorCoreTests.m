@@ -49,6 +49,6 @@
 
 - (void)testLoadFromBundle
 {
-    [[[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle bundleForClass:[self class]]] loadSchemas];
+    [[[TFJSONSchemaValidator alloc] initWithBundle:[NSBundle bundleForClass:[self class]]] loadSchemas:YES];
 }
 @end

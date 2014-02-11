@@ -12,7 +12,7 @@
 + (TFJSONSchemaValidator *)validator;
 - (id)initWithBundle:(NSBundle *)bundle;
 
-- (NSInteger)loadSchemas;
+- (NSInteger)loadSchemas:(BOOL)validate;
 
 - (NSError *)validate:(NSDictionary *)jsonObject withSchema:(NSString *)schema;
 @end

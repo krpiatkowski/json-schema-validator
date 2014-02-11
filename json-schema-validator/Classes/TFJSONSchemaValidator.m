@@ -37,6 +37,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     NSDictionary *_validatorSchema;
     BOOL _loaded;
     NSMutableDictionary *_schemas;
+    NSMutableDictionary *_regularExpressions;
 }
 
 + (TFJSONSchemaValidator *)validator
@@ -54,6 +55,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     if (self) {
         _bundle = bundle;
         _schemas = [NSMutableDictionary new];
+        _regularExpressions = [NSMutableDictionary new];
 
         NSString *path = [_bundle pathForResource:@"validator_schema" ofType:@"json"];
         if(!path){
@@ -70,7 +72,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 }
 
 
-- (NSInteger)loadSchemas
+- (NSInteger)loadSchemas:(BOOL)validate
 {
     if(_loaded) return _schemas.count;
     NSArray *schemaPaths = [_bundle pathsForResourcesOfType:@"schema.json" inDirectory:@""];
@@ -84,7 +86,11 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         if(wrapper->error){
             NSLog(@"Failed to load schema:%@\n%@", schemaName, wrapper->error.userInfo[NSLocalizedDescriptionKey]);
         } else {
-            NSError *error = [self validate:wrapper->schema withSchemaObject:_validatorSchema];
+            
+            NSError *error = nil;
+            if(validate){
+                error = [self validate:wrapper->schema withSchemaObject:_validatorSchema];
+            }
             if(error){
                 NSLog(@"Failed to validate schema:%@", schemaName);
                 for(NSError *err in error.userInfo[@"errors"]){
@@ -281,7 +287,11 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         if(!schema){
             [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"schema-error:%@ has a invalid reference %@",path, ref]]];
         } else {
-            NSString *newPath = [NSString stringWithFormat:@"%@%@{%@}", path, kJSONSchemaValidationPathDelimiter, ref];
+            NSMutableString *newPath = [NSMutableString stringWithString:path];
+            [newPath appendString:kJSONSchemaValidationPathDelimiter];
+            [newPath appendString:@"{"];
+            [newPath appendString:ref];
+            [newPath appendString:@"}"];
             [errors addObjectsFromArray:[self validate:value atPath:newPath schema:schema definitions:schema[@"definitions"]]];
         }
         return errors;
@@ -322,7 +332,11 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     NSMutableArray *errors = [NSMutableArray new];
     NSDictionary *properties = schema[@"properties"];
     for(NSString *property in properties){
-        NSString *newPath = [NSString stringWithFormat:@"%@%@%@", path, kJSONSchemaValidationPathDelimiter, property];
+        //Faster then stringWithFormat
+        NSMutableString *newPath = [NSMutableString stringWithString:path];
+        [newPath appendString:kJSONSchemaValidationPathDelimiter];
+        [newPath appendString:property];
+        
         if(obj[property] && properties[property]){
             [errors addObjectsFromArray:[self validate:obj[property] atPath:newPath schema:properties[property] definitions:definitions]];
         }
@@ -331,13 +345,20 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     
     NSDictionary *patternProperties = schema[@"patternProperties"];
     for(NSString *property in patternProperties){
+        
         NSError *error;
-        NSRegularExpression *reg = [NSRegularExpression regularExpressionWithPattern:property options:0 error:&error];
-
+        NSRegularExpression *reg = _regularExpressions[property];
+        if(!reg){
+            reg = [NSRegularExpression regularExpressionWithPattern:property options:0 error:&error];
+            _regularExpressions[property] = reg;
+        }
+        
         for(NSString *objKey in obj.allKeys){
             if(!properties[objKey]){
                 if([reg numberOfMatchesInString:objKey options:0 range:NSMakeRange(0, objKey.length)]){
-                    NSString *newPath = [NSString stringWithFormat:@"%@%@%@", path, kJSONSchemaValidationPathDelimiter, objKey];
+                    NSMutableString *newPath = [NSMutableString stringWithString:path];
+                    [newPath appendString:kJSONSchemaValidationPathDelimiter];
+                    [newPath appendString:property];
                     [errors addObjectsFromArray:[self validate:obj[objKey] atPath:newPath schema:patternProperties[property] definitions:definitions]];
                 }
             }
@@ -429,7 +450,11 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     NSString *pattern = schema[@"pattern"];
     if(pattern){
         NSError *error;
-        NSRegularExpression *reg = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
+        NSRegularExpression *reg = _regularExpressions[pattern];
+        if(!reg){
+            reg = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:&error];
+            _regularExpressions[pattern] = reg;
+        }
         
         NSUInteger matches =[reg numberOfMatchesInString:str options:0 range:NSMakeRange(0, str.length)];
         if(!matches){
@@ -468,14 +493,17 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         valueType = TFJSONSchemaValidatorArray;
     } else if([value isKindOfClass:NSNumber.class]){
         NSNumber *number = (NSNumber *)value;
-        BOOL isInteger = (strcmp([number objCType], @encode(NSInteger))) == 0 ||
-                         (strcmp([number objCType], @encode(int)))       == 0 ||
-                         (strcmp([number objCType], @encode(long)))      == 0 ||
-                         (strcmp([number objCType], @encode(long long))) == 0;
+
+        CFNumberType type = CFNumberGetType((CFNumberRef)number);
+        
+        BOOL isInteger = type == kCFNumberNSIntegerType ||
+                         type == kCFNumberIntType ||
+                         type == kCFNumberLongType ||
+                         type == kCFNumberLongLongType;
         
         if(isInteger){
             valueType = TFJSONSchemaValidatorInteger;
-        } else if(strcmp([number objCType], @encode(char)) == 0){
+        } else if(type == kCFNumberCharType){
             //Bools are chars
             valueType = TFJSONSchemaValidatorBoolean;
         } else {
@@ -500,22 +528,31 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     }
 }
 
+static NSString *kArrayStr = @"array";
+static NSString *kBoolStr = @"boolean";
+static NSString *kIntegerStr = @"integer";
+static NSString *kNumberStr = @"number";
+static NSString *kNullStr = @"null";
+static NSString *kObjectStr = @"object";
+static NSString *kStringStr = @"string";
+static NSString *kUnknownStr = @"unknown";
+
 - (TFJSONSchemaValidatorType)stringToType:(NSString *)type
 {
-    if([type isEqualToString:@"array"]){
-        return TFJSONSchemaValidatorArray;
-    } else if([type isEqualToString:@"boolean"]){
-        return TFJSONSchemaValidatorBoolean;
-    } else if([type isEqualToString:@"integer"]){
-        return TFJSONSchemaValidatorInteger;
-    } else if([type isEqualToString:@"number"]){
-        return TFJSONSchemaValidatorNumber;
-    } else if([type isEqualToString:@"null"]){
-        return TFJSONSchemaValidatorNull;
-    } else if([type isEqualToString:@"object"]){
+    if([type isEqualToString:kObjectStr]){
         return TFJSONSchemaValidatorObject;
-    } else if([type isEqualToString:@"string"]){
+    } else if([type isEqualToString:kStringStr]){
         return TFJSONSchemaValidatorString;
+    } else if([type isEqualToString:kIntegerStr]){
+        return TFJSONSchemaValidatorInteger;
+    } else if([type isEqualToString:kArrayStr]){
+        return TFJSONSchemaValidatorArray;
+    } else if([type isEqualToString:kNumberStr]){
+        return TFJSONSchemaValidatorNumber;
+    } else if([type isEqualToString:kBoolStr]){
+        return TFJSONSchemaValidatorBoolean;
+    } else if([type isEqualToString:kNullStr]){
+        return TFJSONSchemaValidatorNull;
     } else {
         return TFJSONSchemaValidatorUnknown;
     }
@@ -525,21 +562,21 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 {
     switch (type) {
         case TFJSONSchemaValidatorArray:
-            return @"array";
+            return kArrayStr;
         case TFJSONSchemaValidatorObject:
-            return @"object";
+            return kObjectStr;
         case TFJSONSchemaValidatorString:
-            return @"string";
+            return kStringStr;
         case TFJSONSchemaValidatorNull:
-            return @"null";
+            return kNullStr;
         case TFJSONSchemaValidatorBoolean:
-            return @"boolean";
+            return kBoolStr;
         case TFJSONSchemaValidatorInteger:
-            return @"integer";
+            return kIntegerStr;
         case TFJSONSchemaValidatorNumber:
-            return @"number";
+            return kNullStr;
         case TFJSONSchemaValidatorUnknown:
-            return @"unknown";
+            return kUnknownStr;
     }
 }
 

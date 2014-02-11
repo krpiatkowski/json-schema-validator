@@ -21,7 +21,7 @@
 		CBBECE6318587AFD0099C65F /* TFJSONSchemaValidatorCoreInvalidSchemaData.json in Resources */ = {isa = PBXBuildFile; fileRef = CBBECE6218587AFD0099C65F /* TFJSONSchemaValidatorCoreInvalidSchemaData.json */; };
 		CBC01BE61857298A009DB9A3 /* TFJSONSchemaValidatorUseCaseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC01BE51857298A009DB9A3 /* TFJSONSchemaValidatorUseCaseTests.m */; };
 		CBC01BE8185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CBC01BE7185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.schema.json */; };
-		CBC01BEA18572ABD009DB9A3 /* testDefinitionsWithTypesFailData.schema.json in Resources */ = {isa = PBXBuildFile; fileRef = CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.schema.json */; };
+		CBC01BEA18572ABD009DB9A3 /* testDefinitionsWithTypesFailData.json in Resources */ = {isa = PBXBuildFile; fileRef = CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.json */; };
 		CBC15EA2184F349D00638B84 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBC15EA1184F349D00638B84 /* Foundation.framework */; };
 		CBC15EA4184F349D00638B84 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBC15EA3184F349D00638B84 /* CoreGraphics.framework */; };
 		CBC15EA6184F349D00638B84 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBC15EA5184F349D00638B84 /* UIKit.framework */; };
@@ -69,7 +69,7 @@
 		CBBECE6218587AFD0099C65F /* TFJSONSchemaValidatorCoreInvalidSchemaData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = TFJSONSchemaValidatorCoreInvalidSchemaData.json; sourceTree = "<group>"; };
 		CBC01BE51857298A009DB9A3 /* TFJSONSchemaValidatorUseCaseTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TFJSONSchemaValidatorUseCaseTests.m; sourceTree = "<group>"; };
 		CBC01BE7185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testDefinitionsWithTypesFailSchema.schema.json; sourceTree = "<group>"; };
-		CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.schema.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testDefinitionsWithTypesFailData.schema.json; sourceTree = "<group>"; };
+		CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testDefinitionsWithTypesFailData.json; sourceTree = "<group>"; };
 		CBC15E9E184F349D00638B84 /* json-schema-validator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "json-schema-validator.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBC15EA1184F349D00638B84 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		CBC15EA3184F349D00638B84 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -208,7 +208,7 @@
 				CBC15EDA184F4D8000638B84 /* TFJSONSchemaValidatorStringTests.m */,
 				CB5B7B32184F71EC0012684D /* TFJSONSchemaValidatorStringTests.schema.json */,
 				CBC01BE51857298A009DB9A3 /* TFJSONSchemaValidatorUseCaseTests.m */,
-				CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.schema.json */,
+				CBC01BE918572ABD009DB9A3 /* testDefinitionsWithTypesFailData.json */,
 				CBC01BE7185729EC009DB9A3 /* testDefinitionsWithTypesFailSchema.schema.json */,
 			);
 			path = "json-schema-validatorTests";
@@ -321,7 +321,7 @@
 				CBA089761855D38B00FF9DC4 /* TFJSONSchemaValidatorDefinitionsBundleTests.schema.json in Resources */,
 				CBFAB3B41850632E00E5AD12 /* TFJSONSchemaValidatorArrayTests.schema.json in Resources */,
 				CBBECE6318587AFD0099C65F /* TFJSONSchemaValidatorCoreInvalidSchemaData.json in Resources */,
-				CBC01BEA18572ABD009DB9A3 /* testDefinitionsWithTypesFailData.schema.json in Resources */,
+				CBC01BEA18572ABD009DB9A3 /* testDefinitionsWithTypesFailData.json in Resources */,
 				CB5B7B39184F7AAB0012684D /* TFJSONSchemaValidatorNumberTests.schema.json in Resources */,
 				CB80BE57185847C8005562A8 /* TFJSONSchemaValidatorSetsTests.schema.json in Resources */,
 				CBCB191F1851DA4400F6BB6D /* TFJSONSchemaValidatorDefinitionsTests.schema.json in Resources */,
