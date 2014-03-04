@@ -62,6 +62,12 @@
     XCTAssert(status);
 }
 
+- (void)testInteger2
+{
+    BOOL status = [self assertOk:@{@"testInteger2" : @(0)}];
+    XCTAssert(status);
+}
+
 - (void)testBoolean
 {
     NSString *jsonString = @"{\"testBoolean\":true}";

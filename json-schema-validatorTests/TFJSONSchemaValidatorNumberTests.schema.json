@@ -14,6 +14,7 @@
         "testInteger": {
             "type" : "integer"
         },
+        "testInteger2": {"type" : "integer", "minimum" : 0, "maximum" : 1},
         "testBoolean": {
             "type" : "boolean"
         }

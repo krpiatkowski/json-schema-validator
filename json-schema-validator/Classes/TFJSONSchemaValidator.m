@@ -168,6 +168,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
                 return @[[self errorWithMessage:[NSString stringWithFormat:@"schema-error:%@ must only have of of the following properties [%@]", path, [schemaTypes componentsJoinedByString:@","]]]];
             }
             found = YES;
+            break;
         }
     }
     
@@ -496,10 +497,15 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
         CFNumberType type = CFNumberGetType((CFNumberRef)number);
         
-        BOOL isInteger = type == kCFNumberNSIntegerType ||
+        BOOL isInteger = type == kCFNumberSInt8Type ||
+                         type == kCFNumberSInt16Type ||
+                         type == kCFNumberSInt32Type ||
+                         type == kCFNumberSInt64Type ||
+                         type == kCFNumberShortType ||
                          type == kCFNumberIntType ||
                          type == kCFNumberLongType ||
-                         type == kCFNumberLongLongType;
+                         type == kCFNumberLongLongType ||
+                         type == kCFNumberNSIntegerType;
         
         if(isInteger){
             valueType = TFJSONSchemaValidatorInteger;
