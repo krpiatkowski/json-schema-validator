@@ -253,7 +253,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
         NSMutableArray *validationErrors = [NSMutableArray array];
         
         for(NSInteger i = 0; i < oneOfArr.count; i++){
-            NSString *newPath = [NSString stringWithFormat:@"%@@oneOf[%i]", path, i];
+            NSString *newPath = [NSString stringWithFormat:@"%@@oneOf[%ld]", path, (long)i];
             NSArray *error = [self validate:value atPath:newPath schema:oneOfArr[i] definitions:definitions];
             if(error.count == 0){
                 [matches addObject:@(i)];
@@ -320,7 +320,7 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 {
     NSMutableArray *errors = [NSMutableArray new];
     for(NSInteger i = 0; i < set.count; i++){
-        NSString *newPath = [NSString stringWithFormat:@"%@@%@[%i]", path, pathPrefix, i];
+        NSString *newPath = [NSString stringWithFormat:@"%@@%@[%ld]", path, pathPrefix, (long)i];
         NSArray *error = [self validate:value atPath:newPath schema:set[i] definitions:definitions];
         if(error.count > 0){
             [errors addObject:error];
@@ -398,29 +398,29 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     
     if([items isKindOfClass:NSDictionary.class]){
         for(NSInteger i = 0; i < arr.count; i++){
-            [errors addObjectsFromArray:[self validate:arr[i] atPath:[NSString stringWithFormat:@"%@[%i]", path, i] schema:(NSDictionary *)items definitions:definitions]];
+            [errors addObjectsFromArray:[self validate:arr[i] atPath:[NSString stringWithFormat:@"%@[%ld]", path, (long)i] schema:(NSDictionary *)items definitions:definitions]];
         }
     } else if([items isKindOfClass:NSArray.class]) {
         NSArray *itemsArray = (NSArray *)items;
         for(NSInteger i = 0; i < itemsArray.count && i < arr.count; i++){
-            [errors addObjectsFromArray:[self validate:arr[i] atPath:[NSString stringWithFormat:@"%@[%i]", path, i] schema:itemsArray[i] definitions:definitions]];
+            [errors addObjectsFromArray:[self validate:arr[i] atPath:[NSString stringWithFormat:@"%@[%ld]", path, (long)i] schema:itemsArray[i] definitions:definitions]];
         }
         
         NSNumber *additionalItems = schema[@"additionalItems"];
         if(additionalItems && ![additionalItems boolValue] && arr.count > itemsArray.count){
-            NSError *error = [self errorWithMessage:[NSString stringWithFormat:@"%@ should not have additional entries have %i, should have %i", path, arr.count, itemsArray.count]];
+            NSError *error = [self errorWithMessage:[NSString stringWithFormat:@"%@ should not have additional entries have %ld, should have %ld", path, (long)arr.count, (long)itemsArray.count]];
             [errors addObject:error];
         }
     }
     
     NSNumber *minItems = schema[@"minItems"];
     if(minItems && arr.count < [minItems integerValue]){
-        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ must have a minimum of %i items, it has %i", path, [minItems integerValue], arr.count]]];
+        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ must have a minimum of %ld items, it has %ld", path, (long)[minItems integerValue], (long)arr.count]]];
     }
 
     NSNumber *maxItems = schema[@"maxItems"];
     if(maxItems && arr.count > [maxItems integerValue] ){
-        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ must have a maximum of %i items, it has %i", path, [maxItems integerValue], arr.count]]];
+        [errors addObject:[self errorWithMessage:[NSString stringWithFormat:@"%@ must have a maximum of %ld items, it has %ld", path, (long)[maxItems integerValue], (long)arr.count]]];
     }
 
     return errors;
@@ -443,12 +443,12 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
     
     NSNumber *maxLength = schema[@"maxLength"];
     if(maxLength && str.length > [maxLength integerValue]){
-        return [self errorWithMessage:[NSString stringWithFormat:@"%@ has a length > %d", path, [maxLength integerValue]]];
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ has a length > %ld", path, (long)[maxLength integerValue]]];
     }
 
     NSNumber *minLength = schema[@"minLength"];
     if(minLength && str.length < [minLength integerValue]){
-        return [self errorWithMessage:[NSString stringWithFormat:@"%@ has a length < %d", path, [minLength integerValue]]];
+        return [self errorWithMessage:[NSString stringWithFormat:@"%@ has a length < %ld", path, (long)[minLength integerValue]]];
     }
     
     NSString *pattern = schema[@"pattern"];
