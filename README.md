@@ -12,7 +12,7 @@ or even easier just install it as a [CocoaPod](cocoapods.org).
 Usage
 -----
 
-	NSError *errors = [[TFJSONSchemaValidator validator] validate:json withSchemaPath:@"someSchema"]
+	NSError *errors = [[TFJSONSchemaValidator validator] validate:json withSchema:@"someSchema"]
 
 The parameter json is a NSDictionary representation of the json string, created by using NSJSONSerializer.
 

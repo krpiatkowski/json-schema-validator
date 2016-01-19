@@ -59,6 +59,9 @@ static NSString *kJSONSchemaValidationPathDelimiter = @"->";
 
         NSString *path = [_bundle pathForResource:@"validator_schema" ofType:@"json"];
         if(!path){
+            path = [[NSBundle bundleForClass:[TFJSONSchemaValidator class]] pathForResource:@"validator_schema" ofType:@"json"];
+        }
+        if(!path){
             [[NSException exceptionWithName:@"Validator scheme missing" reason:@"We should always be able to find the validator_schema.json!" userInfo:nil] raise];
         }
 
